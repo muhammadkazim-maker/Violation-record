@@ -1,30 +1,25 @@
 /**
- * School Discipline Tracker - High Performance Collaborative Real-Time Engine
- * Multi-User Staff Attribution, Issues & Collaborative Efforts Hub,
- * Multi-Client Real-Time Sync (BroadcastChannel + IndexedDB + Firebase Ready),
+ * Hadi Education System - School Discipline Tracker
+ * High Performance Real-Time Engine & Responsive UI Controller
+ * Primary Device: Android Phones (360px–430px) & Desktop (1200–1280px)
+ * Multi-User Attribution, Issues & Collaborative Efforts Hub,
+ * Multi-Client Real-Time Sync (BroadcastChannel + IndexedDB + Firestore Ready),
  * Mobile Bottom Navigation, 5-Tier Severity Meters, and PWA Caching.
  */
 
 (function () {
   'use strict';
 
-  // --- Constants & Keys ---
-  const STORAGE_KEY = 'discipline_tracker_store_v2';
-  const DB_NAME = 'Discipline_Tracker_DB_v2';
+  // --- Constants & Storage Keys (v4 Engine) ---
+  const STORAGE_KEY = 'hes_discipline_tracker_v4';
+  const DB_NAME = 'HES_Discipline_DB_v4';
   const DB_VERSION = 1;
-  const SYNC_CHANNEL_NAME = 'discipline_tracker_realtime_sync_v2';
+  const SYNC_CHANNEL_NAME = 'hes_discipline_live_sync_v4';
 
-  // Clear out any legacy HES keys from localStorage so user session starts 100% fresh
-  try {
-    localStorage.removeItem('hes_discipline_tracker_v2');
-    localStorage.removeItem('hes_discipline_tracker_v1');
-    localStorage.removeItem('hes_staff_members_v1');
-    localStorage.removeItem('hes_active_member_session');
-  } catch (e) {}
-
-  // Real-time inter-tab & multi-client sync channel
+  // Multi-tab & multi-window instant synchronization
   const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(SYNC_CHANNEL_NAME) : null;
 
+  // 5 Violation Severity Tiers (Low, Medium, High, Extreme, Ultra)
   const SEVERITY_CONFIG = {
     Low: { points: 5, color: '#10B981', badgeClass: 'sev-low-badge', label: 'Low' },
     Medium: { points: 12, color: '#F59E0B', badgeClass: 'sev-medium-badge', label: 'Medium' },
@@ -33,15 +28,157 @@
     Ultra: { points: 75, color: '#881337', badgeClass: 'sev-ultra-badge', label: 'Ultra' }
   };
 
-  // Clean Initial State: Completely empty of mock data, ready for any school or organization
+  // Seed Data: 10 Authentic Students, 8 Violations, 4 Collaborative Issues & Efforts
   const INITIAL_SEED = {
-    students: [],
-    violations: [],
-    issues: [],
+    students: [
+      { id: 'std-1', name: 'Muhammad Hamza', classSection: '10th-A', rollNo: '1001', guardianPhone: '0300-1234567', notes: 'Active in sports', createdAt: '2026-10-01T08:00:00.000Z' },
+      { id: 'std-2', name: 'Ali Raza', classSection: '10th-A', rollNo: '1002', guardianPhone: '0312-9876543', notes: '', createdAt: '2026-10-01T08:00:00.000Z' },
+      { id: 'std-3', name: 'Bilal Ahmed', classSection: '9th-B', rollNo: '9014', guardianPhone: '0333-5551234', notes: 'Needs counseling', createdAt: '2026-10-02T08:00:00.000Z' },
+      { id: 'std-4', name: 'Usman Tariq', classSection: '9th-A', rollNo: '9005', guardianPhone: '0345-4443322', notes: '', createdAt: '2026-10-02T08:00:00.000Z' },
+      { id: 'std-5', name: 'Zainab Fatima', classSection: '10th-B', rollNo: '1025', guardianPhone: '0321-7778899', notes: 'Academic achiever', createdAt: '2026-10-03T08:00:00.000Z' },
+      { id: 'std-6', name: 'Aisha Noor', classSection: '8th-A', rollNo: '8011', guardianPhone: '0301-6667788', notes: '', createdAt: '2026-10-03T08:00:00.000Z' },
+      { id: 'std-7', name: 'Daniyal Khan', classSection: '9th-B', rollNo: '9021', guardianPhone: '0308-1112233', notes: '', createdAt: '2026-10-04T08:00:00.000Z' },
+      { id: 'std-8', name: 'Hassan Mujtaba', classSection: '8th-A', rollNo: '8004', guardianPhone: '0315-9998877', notes: '', createdAt: '2026-10-05T08:00:00.000Z' },
+      { id: 'std-9', name: 'Maryam Bibi', classSection: '7th-A', rollNo: '7015', guardianPhone: '0302-3334455', notes: '', createdAt: '2026-10-06T08:00:00.000Z' },
+      { id: 'std-10', name: 'Zohaib Akhtar', classSection: '10th-A', rollNo: '1012', guardianPhone: '0341-2223344', notes: '', createdAt: '2026-10-07T08:00:00.000Z' }
+    ],
+    violations: [
+      { id: 'v-101', studentId: 'std-3', studentName: 'Bilal Ahmed', classSection: '9th-B', details: 'Fighting in playground during recess and damaging school property.', severity: 'Ultra', memberId: 'usr-admin-1', memberName: 'Principal Muhammad Ali Hamdani', memberRole: 'Admin', timestamp: '2026-11-20T11:45:00.000Z' },
+      { id: 'v-102', studentId: 'std-3', studentName: 'Bilal Ahmed', classSection: '9th-B', details: 'Using smartphone inside physics lab despite explicit ban.', severity: 'High', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-18T09:20:00.000Z' },
+      { id: 'v-103', studentId: 'std-1', studentName: 'Muhammad Hamza', classSection: '10th-A', details: 'Repeated disruption in mathematics class and arguing with teacher.', severity: 'Extreme', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-19T10:15:00.000Z' },
+      { id: 'v-104', studentId: 'std-1', studentName: 'Muhammad Hamza', classSection: '10th-A', details: 'Arrived 35 minutes late without parent note.', severity: 'Low', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-17T08:35:00.000Z' },
+      { id: 'v-105', studentId: 'std-7', studentName: 'Daniyal Khan', classSection: '9th-B', details: 'Incomplete homework 3 days consecutively and inappropriate uniform.', severity: 'Medium', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-19T08:40:00.000Z' },
+      { id: 'v-106', studentId: 'std-7', studentName: 'Daniyal Khan', classSection: '9th-B', details: 'Disrespectful language directed at junior student.', severity: 'High', memberId: 'usr-admin-1', memberName: 'Principal Muhammad Ali Hamdani', memberRole: 'Admin', timestamp: '2026-11-16T12:30:00.000Z' },
+      { id: 'v-107', studentId: 'std-4', studentName: 'Usman Tariq', classSection: '9th-A', details: 'Leaving classroom without hall pass.', severity: 'Low', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-15T10:00:00.000Z' },
+      { id: 'v-108', studentId: 'std-10', studentName: 'Zohaib Akhtar', classSection: '10th-A', details: 'Defacing school desk with markers.', severity: 'Medium', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-14T11:10:00.000Z' }
+    ],
+    issues: [
+      {
+        id: 'iss-1',
+        title: 'Library reading hall AC not cooling during afternoon study hours',
+        description: 'The library central indoor unit in the main reading hall stopped functioning properly and makes humming noise.',
+        category: 'Facilities',
+        priority: 'High',
+        status: 'solved',
+        creatorId: 'usr-admin-1',
+        creatorName: 'Principal Muhammad Ali Hamdani',
+        creatorRole: 'Admin',
+        createdAt: '2026-11-19T09:00:00.000Z',
+        solvedAt: '2026-11-20T14:30:00.000Z',
+        solvedById: 'usr-admin-1',
+        solvedByName: 'Principal Muhammad Ali Hamdani',
+        solvedByRole: 'Admin',
+        efforts: [
+          {
+            id: 'eff-1',
+            memberId: 'usr-admin-1',
+            memberName: 'Principal Muhammad Ali Hamdani',
+            memberRole: 'Admin',
+            text: 'HVAC technician inspected the indoor unit and replaced the faulty run capacitor. AC running cold now.',
+            timestamp: '2026-11-20T14:20:00.000Z'
+          }
+        ]
+      },
+      {
+        id: 'iss-2',
+        title: '2nd Floor boys washroom hygiene and water tap leakage',
+        description: 'Sanitary conditions need immediate chemical wash and two flush valves require plumbing overhaul before noon.',
+        category: 'Hygiene & Facilities',
+        priority: 'High',
+        status: 'unsolved',
+        creatorId: 'usr-member-2',
+        creatorName: 'Madam Sadia Parveen',
+        creatorRole: 'Member',
+        createdAt: '2026-11-21T08:15:00.000Z',
+        solvedAt: null,
+        solvedById: null,
+        solvedByName: null,
+        solvedByRole: null,
+        efforts: [
+          {
+            id: 'eff-2',
+            memberId: 'usr-member-2',
+            memberName: 'Madam Sadia Parveen',
+            memberRole: 'Member',
+            text: 'Notified custodial supervisor and inspected the floor personally. Maintenance vendor called.',
+            timestamp: '2026-11-21T08:45:00.000Z'
+          }
+        ]
+      },
+      {
+        id: 'iss-3',
+        title: 'Morning assembly late arrivals by 9th and 10th grade students',
+        description: 'Over 25 students consistently arrive after 8:00 AM, missing the morning national anthem and discipline briefing.',
+        category: 'Punctuality',
+        priority: 'High',
+        status: 'unsolved',
+        creatorId: 'usr-member-1',
+        creatorName: 'Sir Tariq Mehmood',
+        creatorRole: 'Member',
+        createdAt: '2026-11-20T07:45:00.000Z',
+        solvedAt: null,
+        solvedById: null,
+        solvedByName: null,
+        solvedByRole: null,
+        efforts: [
+          {
+            id: 'eff-3',
+            memberId: 'usr-member-1',
+            memberName: 'Sir Tariq Mehmood',
+            memberRole: 'Member',
+            text: 'Stationed senior student prefects at main gate with gate register to record exact arrival times.',
+            timestamp: '2026-11-20T08:10:00.000Z'
+          },
+          {
+            id: 'eff-4',
+            memberId: 'usr-admin-1',
+            memberName: 'Principal Muhammad Ali Hamdani',
+            memberRole: 'Admin',
+            text: 'Sent automated SMS broadcast to all parents regarding gate closure at 8:05 AM strictly.',
+            timestamp: '2026-11-20T11:00:00.000Z'
+          }
+        ]
+      },
+      {
+        id: 'iss-4',
+        title: 'Physics & Computer Lab digital projector bulb replacement',
+        description: 'Lab projector lamp burned out during morning class lecture. Replacement bulb needed for multimedia demonstrations.',
+        category: 'Academics & IT',
+        priority: 'Medium',
+        status: 'solved',
+        creatorId: 'usr-admin-1',
+        creatorName: 'Principal Muhammad Ali Hamdani',
+        creatorRole: 'Admin',
+        createdAt: '2026-11-18T10:00:00.000Z',
+        solvedAt: '2026-11-19T11:30:00.000Z',
+        solvedById: 'usr-admin-1',
+        solvedByName: 'Principal Muhammad Ali Hamdani',
+        solvedByRole: 'Admin',
+        efforts: [
+          {
+            id: 'eff-5',
+            memberId: 'usr-member-1',
+            memberName: 'Sir Tariq Mehmood',
+            memberRole: 'Member',
+            text: 'Tested HDMI cables and confirmed bulb filament failure. Requested procurement approval.',
+            timestamp: '2026-11-18T10:30:00.000Z'
+          },
+          {
+            id: 'eff-6',
+            memberId: 'usr-admin-1',
+            memberName: 'Principal Muhammad Ali Hamdani',
+            memberRole: 'Admin',
+            text: 'Authorized new projector lamp from school inventory. Technician installed and tested working.',
+            timestamp: '2026-11-19T11:20:00.000Z'
+          }
+        ]
+      }
+    ],
     settings: {
-      instituteName: 'Discipline Tracker',
+      instituteName: 'Hadi Education System',
       staffPin: '1234',
       theme: 'light',
+      textSize: 'normal',
       syncMode: 'Real-Time Shared'
     }
   };
@@ -92,134 +229,66 @@
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
-  function getIssueMainIcon(issue) {
-    const text = ((issue.title || '') + ' ' + (issue.description || '') + ' ' + (issue.category || '')).toLowerCase();
-
-    // 1. Water / Plumbing / Washroom / Tap (Card 2)
-    if (text.includes('washroom') || text.includes('water') || text.includes('tap') || text.includes('leakage') || text.includes('plumbing') || text.includes('sanitary') || text.includes('toilet') || text.includes('pipe')) {
-      return `<svg width="34" height="34" viewBox="0 0 32 32" fill="#FFFFFF">
-        <rect x="2" y="11" width="3" height="8" rx="1.5"/>
-        <rect x="9" y="3" width="9" height="3" rx="1.5"/>
-        <rect x="12" y="5" width="3" height="6"/>
-        <path d="M5 12C5 11.45 5.45 11 6 11H17C19.76 11 22 13.24 22 16V19H18V16C18 15.45 17.55 15 17 15H6C5.45 15 5 14.55 5 14V12Z"/>
-        <rect x="17" y="18" width="5.5" height="2" rx="0.8"/>
-        <path d="M19.75 22.5C19.75 22.5 17.5 25 17.5 26.5C17.5 27.88 18.5 29 19.75 29C21 29 22 27.88 22 26.5C22 25 19.75 22.5 19.75 22.5Z"/>
-      </svg>`;
-    }
-
-    // 2. Projector / Lab / Computer / IT / Screen / Laptop (Card 4)
-    if (text.includes('projector') || text.includes('computer') || text.includes('lab') || text.includes('laptop') || text.includes('bulb') || text.includes('digital') || text.includes('physics')) {
-      return `<svg width="34" height="34" viewBox="0 0 32 32" fill="#FFFFFF">
-        <path d="M6 6C4.9 6 4 6.9 4 8V19C4 20.1 4.9 21 6 21H26C27.1 21 28 20.1 28 19V8C28 6.9 27.1 6 26 6H6ZM7 9H25V18H7V9Z"/>
-        <path d="M2 22C2 21.45 2.45 21 3 21H29C29.55 21 30 21.45 30 22L28.5 25C28.3 25.55 27.7 26 27.1 26H4.9C4.3 26 3.7 25.55 3.5 25L2 22Z"/>
-      </svg>`;
-    }
-
-    // 3. Morning Assembly / Late arrivals / Punctuality / Calendar (Card 3)
-    if (text.includes('assembly') || text.includes('late') || text.includes('morning') || text.includes('punctual') || text.includes('arrival') || text.includes('anthem') || text.includes('time') || text.includes('clock') || text.includes('calendar')) {
-      return `<svg width="34" height="34" viewBox="0 0 32 32" fill="#FFFFFF">
-        <rect x="8" y="3" width="3" height="5" rx="1.5"/>
-        <rect x="21" y="3" width="3" height="5" rx="1.5"/>
-        <path d="M5 6C4 6 3 7 3 8V26C3 27.1 3.9 28 5 28H27C28.1 28 29 27.1 29 26V8C29 7 28 6 27 6H25V8C25 8.55 24.55 9 24 9C23.45 9 23 8.55 23 8V6H9V8C9 8.55 8.55 9 8 9C7.45 9 7 8.55 7 8V6H5ZM6 12H26V25H6V12Z"/>
-        <rect x="9" y="14.5" width="3.5" height="3.5" rx="0.8"/>
-        <rect x="14.2" y="14.5" width="3.5" height="3.5" rx="0.8"/>
-        <rect x="19.5" y="14.5" width="3.5" height="3.5" rx="0.8"/>
-        <rect x="9" y="19.5" width="3.5" height="3.5" rx="0.8"/>
-        <rect x="14.2" y="19.5" width="3.5" height="3.5" rx="0.8"/>
-        <rect x="19.5" y="19.5" width="3.5" height="3.5" rx="0.8"/>
-      </svg>`;
-    }
-
-    // 4. Library / Air Conditioner / Reading / Book (Card 1)
-    if (text.includes('library') || text.includes('air conditioner') || text.includes('reading') || text.includes('textbook') || /\bac\b/i.test(text)) {
-      return `<svg width="34" height="34" viewBox="0 0 32 32" fill="#FFFFFF">
-        <path d="M4 6.5C4 5.4 4.9 4.5 6 4.5H13C14.4 4.5 15.5 5.6 15.5 7V24C15.5 24.8 14.8 25.5 14 25.5H6C4.9 25.5 4 24.6 4 23.5V6.5Z"/>
-        <path d="M28 6.5C28 5.4 27.1 4.5 26 4.5H19C17.6 4.5 16.5 5.6 16.5 7V24C16.5 24.8 17.2 25.5 18 25.5H26C27.1 25.5 28 24.6 28 23.5V6.5Z"/>
-      </svg>`;
-    }
-
-    // Fallback
-    return `<svg width="34" height="34" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
-  }
-
-  function getCategoryIcon(cat) {
-    const c = (cat || '').toLowerCase();
-    if (c.includes('hygiene') || c.includes('water')) {
-      return `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>`;
-    }
-    if (c.includes('punctual') || c.includes('time')) {
-      return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
-    }
-    if (c.includes('academic') || c.includes('it') || c.includes('computer')) {
-      return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`;
-    }
-    return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="22" x2="9" y2="18"></line><line x1="15" y1="22" x2="15" y2="18"></line><line x1="9" y1="6" x2="9.01" y2="6"></line><line x1="15" y1="6" x2="15.01" y2="6"></line><line x1="9" y1="10" x2="9.01" y2="10"></line><line x1="15" y1="10" x2="15.01" y2="10"></line></svg>`;
-  }
-
-  // --- IndexedDB Async Engine ---
-  class AsyncIDBStorage {
-    constructor() {
+  // --- IndexedDB Offline Storage Wrapper ---
+  class IDBStorage {
+    constructor(dbName, version) {
+      this.dbName = dbName;
+      this.version = version;
       this.db = null;
-      this.ready = this.init();
     }
 
-    init() {
-      return new Promise((resolve) => {
-        if (!window.indexedDB) {
-          resolve(false);
-          return;
-        }
-        const request = window.indexedDB.open(DB_NAME, DB_VERSION);
+    async getDB() {
+      if (this.db) return this.db;
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(this.dbName, this.version);
         request.onupgradeneeded = (e) => {
           const db = e.target.result;
-          if (!db.objectStoreNames.contains('data')) {
-            db.createObjectStore('data');
+          if (!db.objectStoreNames.contains('store')) {
+            db.createObjectStore('store');
           }
         };
         request.onsuccess = (e) => {
           this.db = e.target.result;
-          resolve(true);
+          resolve(this.db);
         };
-        request.onerror = () => resolve(false);
+        request.onerror = (e) => reject(e.target.error);
       });
     }
 
     async get(key) {
-      await this.ready;
-      if (!this.db) return null;
-      return new Promise((resolve) => {
-        try {
-          const tx = this.db.transaction('data', 'readonly');
-          const store = tx.objectStore('data');
-          const req = store.get(key);
-          req.onsuccess = () => resolve(req.result || null);
-          req.onerror = () => resolve(null);
-        } catch (e) {
-          resolve(null);
-        }
-      });
+      try {
+        const db = await this.getDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('store', 'readonly');
+          const st = tx.objectStore('store');
+          const req = st.get(key);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      } catch (err) {
+        return null;
+      }
     }
 
-    async set(key, value) {
-      await this.ready;
-      if (!this.db) return false;
-      return new Promise((resolve) => {
-        try {
-          const tx = this.db.transaction('data', 'readwrite');
-          const store = tx.objectStore('data');
-          const req = store.put(value, key);
+    async set(key, val) {
+      try {
+        const db = await this.getDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('store', 'readwrite');
+          const st = tx.objectStore('store');
+          const req = st.put(val, key);
           req.onsuccess = () => resolve(true);
-          req.onerror = () => resolve(false);
-        } catch (e) {
-          resolve(false);
-        }
-      });
+          req.onerror = () => reject(req.error);
+        });
+      } catch (err) {
+        return false;
+      }
     }
   }
 
-  const idbStorage = new AsyncIDBStorage();
+  const idbStorage = new IDBStorage(DB_NAME, DB_VERSION);
 
-  // --- Real-Time Collaborative Data Store ---
+  // --- Collaborative Real-Time State Store ---
   class CollaborativeStore {
     constructor() {
       this.data = this.loadFromStorage();
@@ -252,7 +321,7 @@
     async hydrateFromIndexedDB() {
       try {
         const idbData = await idbStorage.get('tracker_payload');
-        if (idbData && Array.isArray(idbData.students)) {
+        if (idbData && Array.isArray(idbData.students) && idbData.students.length > 0) {
           this.data = idbData;
           this.rebuildIndices();
           if (window.appController) {
@@ -267,7 +336,7 @@
     }
 
     initRealtimeSync() {
-      // 1. BroadcastChannel: Multi-tab & multi-window instant synchronization
+      // BroadcastChannel multi-client instant synchronization
       if (syncChannel) {
         syncChannel.onmessage = (event) => {
           if (event.data && event.data.type === 'SYNC_UPDATE') {
@@ -276,7 +345,7 @@
         };
       }
 
-      // 2. Storage Event: Multi-window fallback
+      // Storage event multi-window fallback
       window.addEventListener('storage', (e) => {
         if (e.key === STORAGE_KEY && e.newValue) {
           try {
@@ -287,28 +356,44 @@
       }, { passive: true });
     }
 
-    broadcastUpdate(actionDescription) {
+    broadcastUpdate(actionName) {
       if (syncChannel) {
         try {
           syncChannel.postMessage({
             type: 'SYNC_UPDATE',
+            action: actionName,
             payload: this.data,
-            action: actionDescription
+            timestamp: Date.now()
           });
-        } catch (e) {}
+        } catch (e) {
+          console.warn('Broadcast sync error:', e);
+        }
       }
     }
 
-    handleRemoteSync(updatedData, action) {
-      if (!updatedData || !Array.isArray(updatedData.students)) return;
-      this.data = updatedData;
+    handleRemoteSync(remoteData, actionName) {
+      if (!remoteData || !Array.isArray(remoteData.students)) return;
+      this.data = remoteData;
       this.rebuildIndices();
+      idbStorage.set('tracker_payload', remoteData);
       if (window.appController) {
         window.appController.renderAll();
-        if (action) {
-          showToast(`⚡ Live update: ${action}`, 'success');
-        }
+        showToast(`Sync: ${actionName || 'Updated remotely'}`, 'info');
       }
+    }
+
+    commitToDisk() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+        idbStorage.set('tracker_payload', this.data);
+      } catch (e) {
+        console.error('Error saving state:', e);
+      }
+    }
+
+    save(actionName = 'Data updated') {
+      this.commitToDisk();
+      this.broadcastUpdate(actionName);
     }
 
     rebuildIndices() {
@@ -317,22 +402,20 @@
       this.metricsCache.clear();
 
       const students = this.data.students || [];
-      const violations = this.data.violations || [];
-
       for (let i = 0; i < students.length; i++) {
         const s = students[i];
         this.studentMap.set(s.id, s);
         this.violationsByStudent.set(s.id, []);
       }
 
+      const violations = this.data.violations || [];
       for (let i = 0; i < violations.length; i++) {
         const v = violations[i];
-        let list = this.violationsByStudent.get(v.studentId);
-        if (!list) {
-          list = [];
-          this.violationsByStudent.set(v.studentId, list);
+        if (this.violationsByStudent.has(v.studentId)) {
+          this.violationsByStudent.get(v.studentId).push(v);
+        } else {
+          this.violationsByStudent.set(v.studentId, [v]);
         }
-        list.push(v);
       }
 
       for (let i = 0; i < students.length; i++) {
@@ -344,79 +427,78 @@
       const vList = this.violationsByStudent.get(studentId) || [];
       let totalPoints = 0;
       let lastViolationDate = null;
+      let lastSeverity = null;
 
-      for (let i = 0; i < vList.length; i++) {
-        const v = vList[i];
+      // Sort by timestamp descending to find latest incident
+      const sorted = [...vList].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      for (let i = 0; i < sorted.length; i++) {
+        const v = sorted[i];
         const conf = SEVERITY_CONFIG[v.severity] || SEVERITY_CONFIG.Medium;
         totalPoints += conf.points;
-        if (!lastViolationDate || v.timestamp > lastViolationDate) {
+        if (!lastViolationDate) {
           lastViolationDate = v.timestamp;
+          lastSeverity = v.severity;
         }
       }
 
       const scorePercentage = Math.min(100, Math.round(totalPoints));
 
-      let status = 'Clean Record';
+      let status = 'Safe';
       let statusClass = 'sev-safe';
       let barColor = '#10B981';
 
       if (scorePercentage >= 85) {
-        status = 'Critical / Ultra';
+        status = 'Ultra';
         statusClass = 'sev-ultra-badge';
         barColor = '#881337';
       } else if (scorePercentage >= 55) {
-        status = 'Severe Risk';
+        status = 'Extreme';
         statusClass = 'sev-extreme-badge';
         barColor = '#EF4444';
       } else if (scorePercentage >= 30) {
-        status = 'High Risk';
+        status = 'High';
         statusClass = 'sev-high-badge';
         barColor = '#F97316';
       } else if (scorePercentage >= 15) {
-        status = 'Moderate Attention';
+        status = 'Medium';
         statusClass = 'sev-medium-badge';
         barColor = '#F59E0B';
       } else if (scorePercentage > 0) {
-        status = 'Low Risk';
+        status = 'Low';
         statusClass = 'sev-low-badge';
         barColor = '#10B981';
       }
 
-      const metrics = {
+      const metricObj = {
         totalViolations: vList.length,
         totalPoints,
         scorePercentage,
         status,
         statusClass,
         barColor,
-        lastViolationDate
+        lastViolationDate,
+        lastSeverity
       };
 
-      this.metricsCache.set(studentId, metrics);
-      return metrics;
+      this.metricsCache.set(studentId, metricObj);
+      return metricObj;
     }
 
-    commitToDisk() {
-      idbStorage.set('tracker_payload', this.data);
-      try {
-        if (this.data.students.length <= 1500) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
-        }
-      } catch (e) {}
-    }
-
-    save(actionDescription = 'Data updated') {
-      this.debouncedSave();
-      this.broadcastUpdate(actionDescription);
-    }
-
-    // --- Students API ---
     getStudents() {
       return this.data.students || [];
     }
 
-    getStudentById(id) {
+    getStudent(id) {
       return this.studentMap.get(id);
+    }
+
+    getViolations() {
+      return this.data.violations || [];
+    }
+
+    getStudentViolations(studentId) {
+      return this.violationsByStudent.get(studentId) || [];
     }
 
     getStudentMetrics(studentId) {
@@ -464,93 +546,74 @@
       this.save(`Student record removed: ${name}`);
     }
 
-    // --- Violations API (With Staff Attribution) ---
-    getViolations() {
-      return this.data.violations || [];
-    }
+    addViolation({ studentId, classSection, severity, details }) {
+      const student = this.studentMap.get(studentId);
+      if (!student) throw new Error('Student not found');
 
-    getViolationsForStudent(studentId) {
-      const list = this.violationsByStudent.get(studentId) || [];
-      return list.slice().sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1));
-    }
-
-    addViolation({ studentId, studentName, classSection, details, severity }) {
-      const currentUser = window.authManager.getCurrentUser();
+      const user = window.authManager.getCurrentUser();
       const newViolation = {
         id: 'v-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-        studentId,
-        studentName,
-        classSection,
-        details: details.trim(),
+        studentId: student.id,
+        studentName: student.name,
+        classSection: classSection || student.classSection,
         severity: severity || 'Medium',
-        // AUTOMATIC USER ATTRIBUTION & DATE/TIME
-        memberId: currentUser.id,
-        memberName: currentUser.name,
-        memberRole: currentUser.role,
+        details: details.trim(),
+        memberId: user.id,
+        memberName: user.name,
+        memberRole: user.role,
         timestamp: new Date().toISOString()
       };
 
       this.data.violations.unshift(newViolation);
-      let list = this.violationsByStudent.get(studentId);
-      if (!list) {
-        list = [];
-        this.violationsByStudent.set(studentId, list);
+      if (this.violationsByStudent.has(student.id)) {
+        this.violationsByStudent.get(student.id).unshift(newViolation);
+      } else {
+        this.violationsByStudent.set(student.id, [newViolation]);
       }
-      list.unshift(newViolation);
 
-      this.computeAndCacheMetrics(studentId);
-      this.save(`Violation logged for ${studentName} by ${currentUser.name}`);
+      this.computeAndCacheMetrics(student.id);
+      this.save(`Violation logged for ${student.name} (${severity})`);
       return newViolation;
     }
 
-    deleteViolation(id) {
-      const v = this.data.violations.find(item => item.id === id);
+    deleteViolation(violationId) {
+      const v = this.data.violations.find(item => item.id === violationId);
       if (!v) return;
-
-      this.data.violations = this.data.violations.filter(item => item.id !== id);
-      const list = this.violationsByStudent.get(v.studentId);
-      if (list) {
-        this.violationsByStudent.set(v.studentId, list.filter(item => item.id !== id));
+      this.data.violations = this.data.violations.filter(item => item.id !== violationId);
+      const studentId = v.studentId;
+      if (this.violationsByStudent.has(studentId)) {
+        const arr = this.violationsByStudent.get(studentId).filter(item => item.id !== violationId);
+        this.violationsByStudent.set(studentId, arr);
       }
-      this.computeAndCacheMetrics(v.studentId);
-      this.save(`Violation record deleted`);
+      this.computeAndCacheMetrics(studentId);
+      this.save('Violation entry removed');
     }
 
-    // --- Collaborative Issues & Efforts API ---
+    // --- Issues Operations ---
     getIssues() {
-      const rawIssues = (this.data.issues || []);
-      const normalized = rawIssues.map(iss => {
-        if (iss.priority === 'Urgent') iss.priority = 'High';
-        if (!['High', 'Medium', 'Low'].includes(iss.priority)) iss.priority = 'Medium';
-        return iss;
-      });
-      return normalized.slice().sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+      return this.data.issues || [];
     }
 
-    getIssueById(id) {
-      const iss = (this.data.issues || []).find(i => i.id === id);
-      if (iss) {
-        if (iss.priority === 'Urgent') iss.priority = 'High';
-        if (!['High', 'Medium', 'Low'].includes(iss.priority)) iss.priority = 'Medium';
-      }
-      return iss;
+    getIssue(id) {
+      return (this.data.issues || []).find(i => i.id === id);
     }
 
-    addIssue({ title, description, priority = 'Medium', category = 'General' }) {
-      const currentUser = window.authManager.getCurrentUser();
-      let cleanPriority = priority === 'Urgent' ? 'High' : priority;
-      if (!['High', 'Medium', 'Low'].includes(cleanPriority)) cleanPriority = 'Medium';
+    addIssue({ title, description, category, priority }) {
+      const user = window.authManager.getCurrentUser();
+      let normalizedPriority = priority || 'Medium';
+      if (normalizedPriority === 'Urgent') normalizedPriority = 'High';
+      if (!['High', 'Medium', 'Low'].includes(normalizedPriority)) normalizedPriority = 'Medium';
 
       const newIssue = {
         id: 'iss-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
         title: title.trim(),
         description: description.trim(),
-        priority: cleanPriority,
-        category: category.trim() || 'General',
+        category: category || 'General Discipline',
+        priority: normalizedPriority,
         status: 'unsolved',
-        creatorId: currentUser.id,
-        creatorName: currentUser.name,
-        creatorRole: currentUser.role,
+        creatorId: user.id,
+        creatorName: user.name,
+        creatorRole: user.role,
         createdAt: new Date().toISOString(),
         solvedAt: null,
         solvedById: null,
@@ -559,126 +622,106 @@
         efforts: []
       };
 
-      if (!this.data.issues) this.data.issues = [];
       this.data.issues.unshift(newIssue);
-      this.save(`New issue created: "${newIssue.title}" by ${currentUser.name}`);
+      this.save(`New issue created: ${newIssue.title}`);
       return newIssue;
     }
 
     addEffortToIssue(issueId, effortText) {
-      const issue = this.getIssueById(issueId);
+      const issue = this.getIssue(issueId);
       if (!issue) return null;
 
-      const currentUser = window.authManager.getCurrentUser();
+      const user = window.authManager.getCurrentUser();
       const newEffort = {
         id: 'eff-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-        memberId: currentUser.id,
-        memberName: currentUser.name,
-        memberRole: currentUser.role,
+        memberId: user.id,
+        memberName: user.name,
+        memberRole: user.role,
         text: effortText.trim(),
         timestamp: new Date().toISOString()
       };
 
-      if (!issue.efforts) issue.efforts = [];
-      issue.efforts.push(newEffort);
-
-      this.save(`New effort added to "${issue.title}" by ${currentUser.name}`);
+      if (!Array.isArray(issue.efforts)) issue.efforts = [];
+      issue.efforts.unshift(newEffort);
+      this.save(`Effort added by ${user.name} on: ${issue.title}`);
       return newEffort;
     }
 
     updateEffort(issueId, effortId, newText) {
-      const issue = this.getIssueById(issueId);
-      if (!issue || !issue.efforts) return false;
-
+      const issue = this.getIssue(issueId);
+      if (!issue || !Array.isArray(issue.efforts)) return false;
       const effort = issue.efforts.find(e => e.id === effortId);
       if (!effort) return false;
 
-      // Permission check: only author can edit
-      if (!window.authManager.canEditEffort(effort)) {
-        return false;
-      }
-
       effort.text = newText.trim();
-      this.save(`Effort updated on "${issue.title}"`);
+      effort.editedAt = new Date().toISOString();
+      this.save('Effort updated');
       return true;
     }
 
     deleteEffort(issueId, effortId) {
-      const issue = this.getIssueById(issueId);
-      if (!issue || !issue.efforts) return false;
-
-      const effort = issue.efforts.find(e => e.id === effortId);
-      if (!effort) return false;
-
-      if (!window.authManager.canDeleteEffort(effort)) {
-        return false;
-      }
-
+      const issue = this.getIssue(issueId);
+      if (!issue || !Array.isArray(issue.efforts)) return false;
       issue.efforts = issue.efforts.filter(e => e.id !== effortId);
-      this.save(`Effort deleted from "${issue.title}"`);
+      this.save('Effort deleted');
       return true;
     }
 
-    markIssueSolved(issueId) {
-      const issue = this.getIssueById(issueId);
+    solveIssue(issueId) {
+      const issue = this.getIssue(issueId);
       if (!issue) return false;
 
-      if (!window.authManager.canSolveIssue(issue)) {
-        return false;
-      }
-
-      const currentUser = window.authManager.getCurrentUser();
+      const user = window.authManager.getCurrentUser();
       issue.status = 'solved';
       issue.solvedAt = new Date().toISOString();
-      issue.solvedById = currentUser.id;
-      issue.solvedByName = currentUser.name;
-      issue.solvedByRole = currentUser.role;
+      issue.solvedById = user.id;
+      issue.solvedByName = user.name;
+      issue.solvedByRole = user.role;
 
-      this.save(`Issue marked SOLVED: "${issue.title}" by ${currentUser.name}`);
+      this.save(`Issue marked solved: ${issue.title}`);
       return true;
     }
 
     reopenIssue(issueId) {
-      const issue = this.getIssueById(issueId);
+      const issue = this.getIssue(issueId);
       if (!issue) return false;
 
-      if (!window.authManager.canSolveIssue(issue)) {
-        return false;
-      }
-
+      const user = window.authManager.getCurrentUser();
       issue.status = 'unsolved';
       issue.solvedAt = null;
       issue.solvedById = null;
       issue.solvedByName = null;
       issue.solvedByRole = null;
 
-      this.save(`Issue REOPENED: "${issue.title}"`);
+      if (!Array.isArray(issue.efforts)) issue.efforts = [];
+      issue.efforts.unshift({
+        id: 'eff-' + Date.now(),
+        memberId: user.id,
+        memberName: user.name,
+        memberRole: user.role,
+        text: `Reopened issue for further institutional investigation and follow-up.`,
+        timestamp: new Date().toISOString()
+      });
+
+      this.save(`Issue reopened: ${issue.title}`);
       return true;
     }
 
     deleteIssue(issueId) {
-      const issue = this.getIssueById(issueId);
-      if (!issue) return false;
-
-      if (!window.authManager.canDeleteIssue(issue)) {
-        return false;
-      }
-
+      if (!this.data.issues) return;
       this.data.issues = this.data.issues.filter(i => i.id !== issueId);
-      this.save(`Issue deleted: "${issue.title}"`);
-      return true;
+      this.save('Issue removed');
     }
 
-    // --- Statistics & Counts ---
     getQuickStats() {
-      const now = new Date().getTime();
+      const now = Date.now();
       const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
-      const totalStudents = this.data.students.length;
-      const totalViolations = this.data.violations.length;
+      const totalStudents = (this.data.students || []).length;
+      const totalViolations = (this.data.violations || []).length;
 
       let violationsThisWeek = 0;
-      const violations = this.data.violations;
+      const violations = this.data.violations || [];
       for (let i = 0; i < violations.length; i++) {
         if (new Date(violations[i].timestamp).getTime() >= oneWeekAgo) {
           violationsThisWeek++;
@@ -697,6 +740,7 @@
         }
       }
 
+      // Ranking: most violations first, tie break by weighted points
       studentMetricsList.sort((a, b) => b.metrics.totalViolations - a.metrics.totalViolations || b.metrics.totalPoints - a.metrics.totalPoints);
       const top5Students = studentMetricsList.slice(0, 5);
 
@@ -723,23 +767,23 @@
       this.data = JSON.parse(JSON.stringify(INITIAL_SEED));
       this.rebuildIndices();
       this.commitToDisk();
-      this.broadcastUpdate('Reset to demo data');
+      this.broadcastUpdate('Reset to initial data');
     }
   }
 
   const store = new CollaborativeStore();
 
-  // --- Severity Meter Helper ---
+  // --- Severity Meter Helper (Collision-Free Tabular Output) ---
   function renderSeverityMeter(scorePercentage, barColor, status, statusClass) {
     const clampedScore = Math.max(0, Math.min(100, scorePercentage));
     const scaleFactor = (clampedScore / 100).toFixed(3);
     return `
-      <div class="severity-meter-container">
-        <div class="meter-label-row">
-          <span class="meter-badge ${statusClass}">${status}</span>
-          <span>${clampedScore}%</span>
+      <div class="leader-row-meter">
+        <div class="leader-meter-label">
+          <span class="meter-status-pill ${statusClass}">${status}</span>
+          <span class="meter-percent-num">${clampedScore}%</span>
         </div>
-        <div class="meter-track" title="Disciplinary Weight: ${clampedScore}%">
+        <div class="meter-track" title="Cumulative Disciplinary Rating: ${clampedScore}%">
           <div class="meter-fill" style="transform: scaleX(${scaleFactor}); background-color: ${barColor};"></div>
         </div>
       </div>
@@ -753,103 +797,101 @@
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    
-    let iconSvg = '';
-    if (type === 'success') {
-      iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-    } else if (type === 'error') {
-      iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
-    } else {
-      iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>`;
-    }
+    toast.textContent = message;
 
-    toast.innerHTML = `${iconSvg} <span>${message}</span>`;
     container.appendChild(toast);
-
     setTimeout(() => {
       toast.style.opacity = '0';
-      toast.style.transition = 'opacity 0.2s ease';
+      toast.style.transform = 'translateY(-6px)';
+      toast.style.transition = 'opacity 0.2s, transform 0.2s';
       setTimeout(() => toast.remove(), 200);
-    }, 3000);
+    }, 2800);
   }
 
-  // --- Modals ---
+  // --- Modal Helpers (Root Portal System) ---
   function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.add('active');
-      document.body.classList.add('modal-open');
-      document.body.style.overflow = 'hidden';
-    }
+    const el = document.getElementById(modalId);
+    if (!el) return;
+
+    // Close any other open modals first
+    document.querySelectorAll('.modal-overlay.active').forEach(m => {
+      if (m.id !== modalId) m.classList.remove('active');
+    });
+
+    el.classList.add('active');
+    document.body.classList.add('modal-open');
+
+    // Auto-scroll input into view on focus so mobile keyboard never covers fields
+    setTimeout(() => {
+      const input = el.querySelector('input:not([type="hidden"]), select, textarea, button.btn-primary');
+      if (input) {
+        input.focus();
+        input.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }, 60);
   }
 
   function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.remove('active');
-      const anyActive = document.querySelector('.modal-overlay.active');
-      if (!anyActive) {
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-      }
+    const el = document.getElementById(modalId);
+    if (!el) return;
+    el.classList.remove('active');
+
+    const anyActive = document.querySelector('.modal-overlay.active');
+    if (!anyActive) {
+      document.body.classList.remove('modal-open');
     }
   }
 
-  function showConfirmModal(title, message, confirmText, onConfirm) {
+  function showConfirmModal(title, message, confirmBtnText, onConfirm) {
     const modal = document.getElementById('confirm-modal');
-    if (!modal) {
-      if (confirm(message)) onConfirm();
-      return;
-    }
+    if (!modal) return;
 
     document.getElementById('confirm-modal-title').textContent = title;
     document.getElementById('confirm-modal-message').textContent = message;
-    const confirmBtn = document.getElementById('confirm-modal-action-btn');
-    confirmBtn.textContent = confirmText || 'Confirm';
+    const actionBtn = document.getElementById('confirm-modal-action-btn');
+    actionBtn.textContent = confirmBtnText || 'Confirm';
 
-    const newBtn = confirmBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+    const newBtn = actionBtn.cloneNode(true);
+    actionBtn.parentNode.replaceChild(newBtn, actionBtn);
 
     newBtn.addEventListener('click', () => {
       closeModal('confirm-modal');
-      onConfirm();
+      if (typeof onConfirm === 'function') onConfirm();
     });
 
     openModal('confirm-modal');
   }
 
-  // --- Main Application UI Controller ---
+  // --- Application Controller ---
   class AppController {
     constructor() {
       this.selectedSeverity = 'Medium';
-      this.recordsPage = 1;
-      this.recordsPageSize = 15;
-      this.masterSortBy = 'violations-desc';
-      this.masterClassFilter = 'all';
-      this.masterSearchTerm = '';
-
-      // Issues filter states
-      this.issueStatusFilter = 'all'; // 'all' | 'unsolved' | 'solved'
+      this.issueStatusFilter = 'all';
       this.issuePriorityFilter = 'all';
       this.issueSortBy = 'newest';
       this.issueSearchTerm = '';
-      this.activeIssueId = null;
+      this.currentViewingIssueId = null;
 
+      this.masterSearchTerm = '';
+      this.masterClassFilter = 'all';
+      this.masterSortBy = 'violations-desc';
+      this.recordsPage = 1;
+      this.recordsPageSize = 10;
       this.currentProfileStudentId = null;
 
+      // Draft preservation when adding a student inline
+      this.addViolationDraft = null;
+
+      this.init();
+    }
+
+    init() {
       this.initTheme();
+      this.initTextSize();
       this.initAuthUI();
-      this.initFontSettings();
-      this.bindEvents();
+      this.initEventListeners();
       this.renderAll();
 
-      // Auto-open Issues Hub if requested via hash or query param
-      const urlParams = new URLSearchParams(window.location.search);
-      if (window.location.hash === '#issues' || urlParams.get('tab') === 'issues' || urlParams.get('view') === 'issues' || urlParams.get('open') === 'issues') {
-        setTimeout(() => this.openIssuesHub(), 120);
-      }
-
-      // Listen to auth changes
       window.authManager.subscribe(() => {
         this.initAuthUI();
         this.renderAll();
@@ -858,7 +900,7 @@
 
     initTheme() {
       const settings = store.getSettings();
-      const savedTheme = settings.theme || localStorage.getItem('app_theme') || 'light';
+      const savedTheme = settings.theme || localStorage.getItem('hes_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
       this.updateThemeIcon(savedTheme);
     }
@@ -867,7 +909,7 @@
       const current = document.documentElement.getAttribute('data-theme') || 'light';
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('app_theme', next);
+      localStorage.setItem('hes_theme', next);
       store.updateSettings({ theme: next });
       this.updateThemeIcon(next);
       showToast(`Switched to ${next} mode`, 'success');
@@ -877,89 +919,22 @@
       const icon = document.getElementById('theme-toggle-icon');
       if (!icon) return;
       if (theme === 'dark') {
-        icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+        icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
       } else {
-        icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+        icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
       }
     }
 
-    initFontSettings() {
-      const savedFont = localStorage.getItem('app_font_preference') || 'plus-jakarta';
-      const smoothingEnabled = localStorage.getItem('app_font_smoothing') !== 'false';
-      this.applyFont(savedFont, false);
-      this.applySmoothing(smoothingEnabled);
-
-      const fontSelect = document.getElementById('font-family-select');
-      if (fontSelect) {
-        fontSelect.value = savedFont;
-        fontSelect.addEventListener('change', (e) => {
-          this.applyFont(e.target.value, true);
-        });
-      }
-
-      const smoothingToggle = document.getElementById('font-smoothing-toggle');
-      if (smoothingToggle) {
-        smoothingToggle.checked = smoothingEnabled;
-        smoothingToggle.addEventListener('change', (e) => {
-          this.applySmoothing(e.target.checked);
-        });
-      }
-
-      document.getElementById('font-toggle-btn')?.addEventListener('click', () => {
-        this.cycleFont();
+    initTextSize() {
+      const saved = localStorage.getItem('hes_text_size') || 'normal';
+      document.documentElement.setAttribute('data-text-size', saved);
+      document.getElementById('text-size-btn')?.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-text-size') || 'normal';
+        const next = cur === 'large' ? 'normal' : 'large';
+        document.documentElement.setAttribute('data-text-size', next);
+        localStorage.setItem('hes_text_size', next);
+        showToast(`Text size: ${next === 'large' ? 'Larger (+12%)' : 'Standard'}`, 'success');
       });
-    }
-
-    cycleFont() {
-      const fonts = ['plus-jakarta', 'outfit', 'dm-sans', 'inter', 'system'];
-      const fontLabels = {
-        'plus-jakarta': '✨ Plus Jakarta Sans (Ultra-Smooth)',
-        'outfit': '🌸 Outfit (Soft Curves)',
-        'dm-sans': '📐 DM Sans (Clean & Rounded)',
-        'inter': '🎯 Inter (Standard Crisp)',
-        'system': '💻 System Native Font'
-      };
-      const current = localStorage.getItem('app_font_preference') || 'plus-jakarta';
-      const currentIndex = fonts.indexOf(current);
-      const nextFont = fonts[(currentIndex + 1) % fonts.length];
-      this.applyFont(nextFont, true);
-      const select = document.getElementById('font-family-select');
-      if (select) select.value = nextFont;
-    }
-
-    applyFont(fontKey, notify = false) {
-      const validFonts = ['plus-jakarta', 'outfit', 'dm-sans', 'inter', 'system'];
-      const targetFont = validFonts.includes(fontKey) ? fontKey : 'plus-jakarta';
-      validFonts.forEach(f => {
-        document.documentElement.classList.remove(`font-${f}`);
-        document.body.classList.remove(`font-${f}`);
-      });
-      document.documentElement.classList.add(`font-${targetFont}`);
-      document.body.classList.add(`font-${targetFont}`);
-      localStorage.setItem('app_font_preference', targetFont);
-
-      const fontNames = {
-        'plus-jakarta': 'Plus Jakarta Sans (Ultra-Smooth)',
-        'outfit': 'Outfit (Soft Curved)',
-        'dm-sans': 'DM Sans (Clean & Rounded)',
-        'inter': 'Inter (Crisp)',
-        'system': 'System Native'
-      };
-      if (notify) {
-        showToast(`Font switched to ${fontNames[targetFont]}`, 'success');
-      }
-    }
-
-    applySmoothing(enabled) {
-      if (enabled) {
-        document.documentElement.classList.remove('no-smoothing');
-        document.body.classList.remove('no-smoothing');
-        localStorage.setItem('app_font_smoothing', 'true');
-      } else {
-        document.documentElement.classList.add('no-smoothing');
-        document.body.classList.add('no-smoothing');
-        localStorage.setItem('app_font_smoothing', 'false');
-      }
     }
 
     initAuthUI() {
@@ -967,183 +942,158 @@
       const chipName = document.getElementById('header-member-name');
       const chipAvatar = document.getElementById('header-member-avatar');
       const chipBadge = document.getElementById('header-member-badge');
+      const memberChip = document.getElementById('header-member-chip');
 
-      if (chipName) chipName.textContent = user.name;
-      if (chipAvatar) {
-        chipAvatar.textContent = user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-        chipAvatar.classList.toggle('admin-avatar', user.role === 'Admin');
-      }
-      if (chipBadge) {
-        chipBadge.textContent = user.role;
-        chipBadge.className = `role-badge ${user.role === 'Admin' ? 'role-badge-admin' : 'role-badge-member'}`;
+      if (user) {
+        if (chipName) chipName.textContent = user.name;
+        if (chipAvatar) {
+          const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+          chipAvatar.textContent = initials || 'ST';
+          chipAvatar.className = `member-avatar ${user.role === 'Admin' ? 'admin-avatar' : ''}`;
+        }
+        if (chipBadge) {
+          chipBadge.textContent = user.role;
+          chipBadge.className = `role-badge ${user.role === 'Admin' ? 'role-badge-admin' : 'role-badge-member'}`;
+        }
+        if (memberChip) {
+          memberChip.title = `Signed in as ${user.name} (${user.role}) - Click to switch staff member`;
+        }
       }
 
-      // Sync status indicator text
-      const syncText = document.getElementById('sync-mode-text');
-      if (syncText) {
-        syncText.textContent = window.isFirebaseConfigured?.() ? 'Cloud Firestore Real-Time Active' : 'Live Shared Real-Time Mode (Multi-Device)';
+      // Update author tag inside Add Violation modal
+      const authorChip = document.getElementById('v-member-author-chip');
+      if (authorChip && user) {
+        authorChip.textContent = `Logging as: ${user.name} (${user.role})`;
       }
+
+      this.renderStaffList();
     }
 
-    renderAll() {
-      this.renderQuickStats();
-      this.populateStudentSelectDropdowns();
-      this.populateClassDropdowns();
-      if (document.getElementById('records-modal')?.classList.contains('active')) {
-        this.renderMasterTable();
-      }
-      if (document.getElementById('issues-modal')?.classList.contains('active')) {
-        this.renderIssuesHub();
-      }
-      if (this.activeIssueId && document.getElementById('issue-detail-modal')?.classList.contains('active')) {
-        this.renderIssueDetail(this.activeIssueId);
-      }
-      if (this.currentProfileStudentId && document.getElementById('student-profile-modal')?.classList.contains('active')) {
-        this.renderStudentProfile(this.currentProfileStudentId);
-      }
-    }
-
-    bindEvents() {
-      // Header & Navigation
+    initEventListeners() {
+      // 1. Theme and Text size toggles
       document.getElementById('theme-toggle-btn')?.addEventListener('click', () => this.toggleTheme());
+      document.getElementById('header-member-chip')?.addEventListener('click', () => openModal('staff-modal'));
       document.getElementById('settings-btn')?.addEventListener('click', () => openModal('settings-modal'));
-      document.getElementById('header-member-chip')?.addEventListener('click', () => this.openStaffModal());
 
-      // Center Action Cards
+      // 2. Center Action Cards
       document.getElementById('card-add-violation')?.addEventListener('click', () => this.openAddViolationModal());
-      document.getElementById('card-issues')?.addEventListener('click', () => this.openIssuesHub());
+      document.getElementById('card-issues')?.addEventListener('click', () => this.openIssuesHubModal());
       document.getElementById('card-records')?.addEventListener('click', () => this.openRecordsModal());
 
-      // Mobile Bottom Nav Items
+      // 3. Mobile Bottom Navigation
       document.getElementById('nav-home')?.addEventListener('click', () => {
+        this.setActiveNav('nav-home');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        this.setActiveBottomNav('nav-home');
       });
       document.getElementById('nav-violation')?.addEventListener('click', () => {
+        this.setActiveNav('nav-violation');
         this.openAddViolationModal();
-        this.setActiveBottomNav('nav-violation');
       });
       document.getElementById('nav-issues')?.addEventListener('click', () => {
-        this.openIssuesHub();
-        this.setActiveBottomNav('nav-issues');
+        this.setActiveNav('nav-issues');
+        this.openIssuesHubModal();
       });
       document.getElementById('nav-records')?.addEventListener('click', () => {
+        this.setActiveNav('nav-records');
         this.openRecordsModal();
-        this.setActiveBottomNav('nav-records');
       });
       document.getElementById('nav-staff')?.addEventListener('click', () => {
-        this.openStaffModal();
-        this.setActiveBottomNav('nav-staff');
+        this.setActiveNav('nav-staff');
+        openModal('staff-modal');
       });
 
       // Mobile FAB
-      document.getElementById('fab-add-issue')?.addEventListener('click', () => {
-        this.openAddIssueModal();
-      });
+      document.getElementById('mobile-fab-add-issue')?.addEventListener('click', () => this.openAddIssueModal());
 
-      // Global Top Search Input (Finds both students and issues)
-      const globalSearch = document.getElementById('global-search-input');
-      const clearSearchBtn = document.getElementById('search-clear-btn');
-      const searchDropdown = document.getElementById('search-results-dropdown');
+      // 4. Global Search (300ms debounce)
+      const globalInput = document.getElementById('global-search-input');
+      const clearBtn = document.getElementById('search-clear-btn');
+      if (globalInput) {
+        globalInput.addEventListener('input', debounce((e) => {
+          this.handleGlobalSearch(e.target.value);
+        }, 300));
 
-      const debouncedSearch = debounce((val) => {
-        if (val.length > 0) {
-          clearSearchBtn?.classList.add('visible');
-          this.handleGlobalSearch(val);
-        } else {
-          clearSearchBtn?.classList.remove('visible');
-          searchDropdown?.classList.remove('active');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', () => {
+            globalInput.value = '';
+            clearBtn.style.display = 'none';
+            document.getElementById('search-results-dropdown')?.classList.remove('active');
+          });
         }
-      }, 250);
+      }
 
-      globalSearch?.addEventListener('input', (e) => debouncedSearch(e.target.value.trim().toLowerCase()));
-
-      document.addEventListener('click', (e) => {
-        if (!globalSearch?.contains(e.target) && !searchDropdown?.contains(e.target)) {
-          searchDropdown?.classList.remove('active');
-        }
-      }, { passive: true });
-
-      clearSearchBtn?.addEventListener('click', () => {
-        if (globalSearch) globalSearch.value = '';
-        clearSearchBtn.classList.remove('visible');
-        searchDropdown?.classList.remove('active');
-      });
-
-      // Severity 5-Button Selector
-      document.querySelectorAll('.sev-btn').forEach(btn => {
+      // 5. 5-Severity Button Selector for Add Violation
+      document.querySelectorAll('.severity-selector .sev-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active'));
+          const target = e.currentTarget;
+          const sev = target.getAttribute('data-sev');
+          this.selectSeverity(sev);
+        });
+      });
+
+      // 6. Add Violation Student Select & Inline Add Student
+      const vStudentSelect = document.getElementById('v-student-select');
+      vStudentSelect?.addEventListener('change', (e) => {
+        const studentId = e.target.value;
+        const student = store.getStudent(studentId);
+        if (student) {
+          const classSelect = document.getElementById('v-class-select');
+          if (classSelect) classSelect.value = student.classSection;
+        }
+      });
+
+      document.getElementById('v-inline-add-student')?.addEventListener('click', () => {
+        // Save current draft before opening student creation modal
+        this.addViolationDraft = {
+          studentId: document.getElementById('v-student-select')?.value || '',
+          classSection: document.getElementById('v-class-select')?.value || '',
+          severity: this.selectedSeverity || 'Medium',
+          details: document.getElementById('violation-details-input')?.value || ''
+        };
+        openModal('add-student-modal');
+      });
+
+      // 7. Forms Submit Handlers
+      document.getElementById('add-violation-form')?.addEventListener('submit', (e) => this.handleAddViolationSubmit(e));
+      document.getElementById('add-issue-form')?.addEventListener('submit', (e) => this.handleAddIssueSubmit(e));
+      document.getElementById('add-effort-form')?.addEventListener('submit', (e) => this.handleAddEffortSubmit(e));
+      document.getElementById('add-student-form')?.addEventListener('submit', (e) => this.handleAddStudentSubmit(e));
+      document.getElementById('edit-student-form')?.addEventListener('submit', (e) => this.handleEditStudentSubmit(e));
+      document.getElementById('new-member-form')?.addEventListener('submit', (e) => this.handleRegisterMemberSubmit(e));
+
+      // 8. Issues Hub Filter & Sort
+      document.querySelectorAll('.issue-filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.issue-filter-btn').forEach(b => b.classList.remove('active'));
           const target = e.currentTarget;
           target.classList.add('active');
-          this.selectedSeverity = target.getAttribute('data-sev');
+          this.issueStatusFilter = target.getAttribute('data-status');
+          this.renderIssuesHub();
         });
       });
 
-      // Quick Tag Chips for Violations
-      document.querySelectorAll('.quick-tags .tag-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const textarea = document.getElementById('violation-details-input');
-          if (textarea) {
-            const current = textarea.value.trim();
-            const tag = btn.getAttribute('data-tag');
-            textarea.value = current ? `${current}. ${tag}` : tag;
-            textarea.focus();
-          }
-        });
+      const issueSearchInput = document.getElementById('issue-search-input');
+      issueSearchInput?.addEventListener('input', debounce((e) => {
+        this.issueSearchTerm = e.target.value.trim().toLowerCase();
+        this.renderIssuesHub();
+      }, 300));
+
+      document.getElementById('issue-priority-filter')?.addEventListener('change', (e) => {
+        this.issuePriorityFilter = e.target.value;
+        this.renderIssuesHub();
       });
 
-      // Add Violation Form
-      document.getElementById('add-violation-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.saveViolation();
+      document.getElementById('issue-sort-by')?.addEventListener('change', (e) => {
+        this.issueSortBy = e.target.value;
+        this.renderIssuesHub();
       });
 
-      // Add Issue Form
-      document.getElementById('add-issue-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.saveNewIssue();
-      });
-
-      // Add Effort Form in Issue Detail
-      document.getElementById('add-effort-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.saveNewEffort();
-      });
-
-      // Auto-fill Class on Student Select
-      document.getElementById('v-student-select')?.addEventListener('change', (e) => {
-        const student = store.getStudentById(e.target.value);
-        const classSelect = document.getElementById('v-class-select');
-        const customInput = document.getElementById('v-class-custom');
-        if (student && classSelect) {
-          this.ensureClassOption(classSelect, student.classSection);
-          classSelect.value = student.classSection;
-          if (customInput) customInput.style.display = 'none';
-        }
-      });
-
-      document.getElementById('v-class-select')?.addEventListener('change', (e) => {
-        const customInput = document.getElementById('v-class-custom');
-        if (customInput) {
-          customInput.style.display = e.target.value === 'Custom' ? 'block' : 'none';
-          if (e.target.value === 'Custom') customInput.focus();
-        }
-      });
-
-      // Inline New Student Modals
-      document.getElementById('v-inline-add-student')?.addEventListener('click', () => openModal('add-student-modal'));
-      document.getElementById('add-student-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.saveNewStudent();
-      });
-
-      // Master Records Filter & Sorting
-      document.getElementById('records-sort-select')?.addEventListener('change', (e) => {
-        this.masterSortBy = e.target.value;
+      // 9. Master Records Filter & Pagination
+      document.getElementById('records-search-input')?.addEventListener('input', debounce((e) => {
+        this.masterSearchTerm = e.target.value.trim().toLowerCase();
         this.recordsPage = 1;
         this.renderMasterTable();
-      });
+      }, 300));
 
       document.getElementById('records-class-filter')?.addEventListener('change', (e) => {
         this.masterClassFilter = e.target.value;
@@ -1151,188 +1101,13 @@
         this.renderMasterTable();
       });
 
-      const debouncedTableSearch = debounce((val) => {
-        this.masterSearchTerm = val;
+      document.getElementById('records-sort-by')?.addEventListener('change', (e) => {
+        this.masterSortBy = e.target.value;
         this.recordsPage = 1;
         this.renderMasterTable();
-      }, 250);
-
-      document.getElementById('records-table-search')?.addEventListener('input', (e) => {
-        debouncedTableSearch(e.target.value.toLowerCase().trim());
       });
 
-      // Issues Hub: Search Input with 300ms Debounce
-      const debouncedIssueSearch = debounce((val) => {
-        this.issueSearchTerm = val;
-        this.renderIssuesHub();
-      }, 300);
-
-      document.getElementById('issue-search-input')?.addEventListener('input', (e) => {
-        debouncedIssueSearch(e.target.value.trim());
-      });
-
-      // Issues Hub: Separate Fully-Colored Filter Buttons
-      document.querySelectorAll('.issue-filter-buttons .issue-filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.issue-filter-buttons .issue-filter-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          this.issueStatusFilter = btn.getAttribute('data-status') || 'all';
-          this.renderIssuesHub();
-        });
-      });
-
-      document.getElementById('issue-priority-filter')?.addEventListener('change', (e) => {
-        this.issuePriorityFilter = e.target.value;
-        this.renderIssuesHub();
-      });
-
-      document.getElementById('issue-sort-select')?.addEventListener('change', (e) => {
-        this.issueSortBy = e.target.value;
-        this.renderIssuesHub();
-      });
-
-      document.getElementById('open-add-issue-btn')?.addEventListener('click', () => this.openAddIssueModal());
-      document.getElementById('fab-add-issue')?.addEventListener('click', () => this.openAddIssueModal());
-
-      // Profile Actions
-      document.getElementById('print-profile-btn')?.addEventListener('click', () => window.print());
-      document.getElementById('profile-add-violation-btn')?.addEventListener('click', () => {
-        if (this.currentProfileStudentId) {
-          closeModal('student-profile-modal');
-          this.openAddViolationModal(this.currentProfileStudentId);
-        }
-      });
-
-      // Edit / Delete Student from Profile
-      document.getElementById('profile-edit-std-btn')?.addEventListener('click', () => {
-        if (!this.currentProfileStudentId) return;
-        const student = store.getStudentById(this.currentProfileStudentId);
-        if (!student) return;
-
-        document.getElementById('edit-std-id').value = student.id;
-        document.getElementById('edit-std-name').value = student.name;
-        document.getElementById('edit-std-class').value = student.classSection;
-        document.getElementById('edit-std-roll').value = student.rollNo || '';
-        document.getElementById('edit-std-phone').value = student.guardianPhone || '';
-        document.getElementById('edit-std-notes').value = student.notes || '';
-
-        openModal('edit-student-modal');
-      });
-
-      document.getElementById('edit-student-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = document.getElementById('edit-std-id')?.value;
-        const name = document.getElementById('edit-std-name')?.value.trim();
-        const classSection = document.getElementById('edit-std-class')?.value.trim();
-        const rollNo = document.getElementById('edit-std-roll')?.value.trim();
-        const guardianPhone = document.getElementById('edit-std-phone')?.value.trim();
-        const notes = document.getElementById('edit-std-notes')?.value.trim();
-
-        if (!name || !classSection) {
-          showToast('Name and Class are required', 'error');
-          return;
-        }
-
-        store.updateStudent(id, { name, classSection, rollNo, guardianPhone, notes });
-        showToast('Student profile updated', 'success');
-        closeModal('edit-student-modal');
-        this.populateStudentSelectDropdowns();
-        this.populateClassDropdowns();
-        if (this.currentProfileStudentId === id) {
-          this.renderStudentProfile(id);
-        }
-      });
-
-      document.getElementById('profile-delete-std-btn')?.addEventListener('click', () => {
-        if (!this.currentProfileStudentId) return;
-        if (!window.authManager.canDeleteStudent()) {
-          showToast('Only Admin can delete student records', 'error');
-          return;
-        }
-
-        const student = store.getStudentById(this.currentProfileStudentId);
-        if (!student) return;
-
-        showConfirmModal(
-          `Delete Student: ${student.name}`,
-          `Are you sure you want to permanently delete ${student.name}? This will remove all their recorded violations from the database.`,
-          'Delete Student Record',
-          () => {
-            store.deleteStudent(student.id);
-            showToast(`Student ${student.name} deleted`, 'success');
-            closeModal('student-profile-modal');
-            this.currentProfileStudentId = null;
-            this.renderQuickStats();
-            this.populateStudentSelectDropdowns();
-            this.populateClassDropdowns();
-            if (document.getElementById('records-modal')?.classList.contains('active')) {
-              this.renderMasterTable();
-            }
-          }
-        );
-      });
-
-      // Staff Member Login & Registration
-      document.getElementById('staff-login-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const username = document.getElementById('staff-login-username')?.value;
-        const password = document.getElementById('staff-login-password')?.value;
-        const res = window.authManager.login(username, password);
-        if (res.success) {
-          showToast(`Welcome, ${res.user.name} (${res.user.role})!`, 'success');
-          closeModal('staff-modal');
-        } else {
-          showToast(res.message, 'error');
-        }
-      });
-
-      document.getElementById('staff-register-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('new-member-name')?.value;
-        const username = document.getElementById('new-member-username')?.value;
-        const password = document.getElementById('new-member-password')?.value;
-        const role = document.getElementById('new-member-role')?.value;
-        const designation = document.getElementById('new-member-designation')?.value;
-
-        const res = window.authManager.registerMember({ name, username, password, role, designation });
-        if (res.success) {
-          showToast(`Member ${res.user.name} registered successfully!`, 'success');
-          document.getElementById('staff-register-form').reset();
-          this.renderStaffList();
-        } else {
-          showToast(res.message, 'error');
-        }
-      });
-
-      // Firebase Config Save
-      document.getElementById('firebase-config-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const apiKey = document.getElementById('fb-api-key')?.value.trim();
-        const projectId = document.getElementById('fb-project-id')?.value.trim();
-        const authDomain = document.getElementById('fb-auth-domain')?.value.trim();
-
-        if (!apiKey || !projectId) {
-          showToast('API Key and Project ID are required for Firebase', 'error');
-          return;
-        }
-
-        const config = {
-          apiKey,
-          projectId,
-          authDomain: authDomain || `${projectId}.firebaseapp.com`,
-          storageBucket: `${projectId}.appspot.com`,
-          messagingSenderId: "",
-          appId: ""
-        };
-
-        localStorage.setItem('custom_firebase_config', JSON.stringify(config));
-        window.FIREBASE_CONFIG = config;
-        showToast('Firebase configuration saved! Live cloud sync connected.', 'success');
-        this.initAuthUI();
-        closeModal('settings-modal');
-      });
-
-      // Data Management: Export / Backup
+      // 10. Data Import / Export Handlers
       document.getElementById('export-records-csv-btn')?.addEventListener('click', () => this.exportMasterToCSV());
       document.getElementById('export-violations-csv-btn')?.addEventListener('click', () => this.exportViolationsToCSV());
       document.getElementById('export-issues-csv-btn')?.addEventListener('click', () => this.exportIssuesToCSV());
@@ -1340,71 +1115,67 @@
       document.getElementById('restore-json-input')?.addEventListener('change', (e) => this.handleJSONRestore(e));
       document.getElementById('import-students-csv-input')?.addEventListener('change', (e) => this.handleCSVImport(e));
 
+      // Reset Demo Data Button
       document.getElementById('reset-demo-data-btn')?.addEventListener('click', () => {
         showConfirmModal(
-          'Clear All Data',
-          'Are you sure you want to clear all student records, violations, and issues? This will leave the app completely fresh and clean.',
-          'Clear All Data',
+          'Reset to Demo Data',
+          'Are you sure you want to reset all records to the original Hadi Education System sample data? Any unsaved custom entries will be replaced.',
+          'Reset Data',
           () => {
             store.resetToDemoData();
-            showToast('All records cleared successfully', 'success');
+            showToast('All records reset to initial sample data', 'success');
             closeModal('settings-modal');
             this.renderAll();
           }
         );
       });
 
-      // Close modal on backdrop click
-      window.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-overlay')) {
-          e.target.classList.remove('active');
-          const anyActive = document.querySelector('.modal-overlay.active');
-          if (!anyActive) {
-            document.body.classList.remove('modal-open');
-            document.body.style.overflow = '';
-          }
-        }
-      }, { passive: true });
-
-      // Close modal on Escape key
-      document.addEventListener('keydown', (e) => {
+      // Keyboard & Backdrop dismissal
+      window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           const activeModal = document.querySelector('.modal-overlay.active');
-          if (activeModal) {
-            closeModal(activeModal.id);
-          }
+          if (activeModal) closeModal(activeModal.id);
         }
       });
 
-      // Keyboard scrollIntoView on mobile input focus
-      document.addEventListener('focusin', (e) => {
-        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
-          setTimeout(() => {
-            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 250);
+      window.addEventListener('click', (e) => {
+        if (e.target.classList && e.target.classList.contains('modal-overlay')) {
+          closeModal(e.target.id);
         }
       });
     }
 
-    setActiveBottomNav(navId) {
-      document.querySelectorAll('.bottom-nav-item').forEach(item => {
-        item.classList.toggle('active', item.id === navId);
+    setActiveNav(navId) {
+      document.querySelectorAll('.bottom-nav-item').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(navId)?.classList.add('active');
+    }
+
+    selectSeverity(severity) {
+      this.selectedSeverity = severity;
+      document.querySelectorAll('.severity-selector .sev-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('data-sev') === severity;
+        btn.classList.toggle('active', isMatch);
+        btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
       });
     }
 
-    ensureClassOption(selectEl, className) {
-      if (!Array.from(selectEl.options).some(o => o.value === className)) {
-        const opt = document.createElement('option');
-        opt.value = className;
-        opt.textContent = className;
-        selectEl.appendChild(opt);
+    renderAll() {
+      this.renderQuickStats();
+      this.populateStudentSelectDropdowns();
+      this.renderIssuesHub();
+      this.renderMasterTable();
+      if (this.currentViewingIssueId) {
+        this.renderIssueDetail(this.currentViewingIssueId);
+      }
+      if (this.currentProfileStudentId) {
+        this.renderStudentProfile(this.currentProfileStudentId);
       }
     }
 
-    // --- Quick Stats ---
+    // --- Overview Metrics & Top 5 Leaderboard ---
     renderQuickStats() {
       const stats = store.getQuickStats();
-      
+
       const totalStudentsEl = document.getElementById('stat-total-students');
       const totalViolationsEl = document.getElementById('stat-total-violations');
       const weekViolationsEl = document.getElementById('stat-week-violations');
@@ -1416,35 +1187,49 @@
       if (weekViolationsEl) weekViolationsEl.textContent = stats.violationsThisWeek;
       if (unsolvedIssuesEl) unsolvedIssuesEl.textContent = stats.unsolvedCount;
 
-      // Update Center Card Live Badge: "X Unsolved / Y Solved"
       if (issuesCardBadge) {
-        issuesCardBadge.textContent = `${stats.unsolvedCount} Unsolved / ${stats.solvedCount} Solved`;
+        issuesCardBadge.textContent = `${stats.unsolvedCount} Unsolved · ${stats.solvedCount} Solved`;
       }
 
-      // Leaderboard
+      // Top 5 Students Leaderboard
       const leaderboardList = document.getElementById('top-5-leaderboard-list');
       if (!leaderboardList) return;
 
       if (stats.top5Students.length === 0) {
-        leaderboardList.innerHTML = `<div style="text-align:center; padding: 1rem; color: var(--text-muted);">No student violations recorded yet. Outstanding discipline!</div>`;
+        leaderboardList.innerHTML = `<div style="text-align:center; padding: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">No infractions recorded yet. Outstanding institutional discipline!</div>`;
         return;
       }
 
       leaderboardList.innerHTML = stats.top5Students.map((item, idx) => {
         const rank = idx + 1;
         const m = item.metrics;
+        const clampedScore = Math.max(0, Math.min(100, m.scorePercentage));
+        const scaleFactor = (clampedScore / 100).toFixed(3);
+        const lastSevBadge = m.lastSeverity ? `<span class="badge-last-sev sev-${m.lastSeverity.toLowerCase()}-badge">Last: ${m.lastSeverity}</span>` : '';
+
         return `
-          <div class="leader-item" onclick="window.appController.openStudentProfile('${item.student.id}')">
-            <div class="leader-left">
-              <div class="leader-rank rank-${rank}">#${rank}</div>
-              <div class="leader-details">
-                <div class="student-title">${escapeHtml(item.student.name)}</div>
-                <div class="student-sub">Class: ${escapeHtml(item.student.classSection)} | Roll: ${escapeHtml(item.student.rollNo || 'N/A')}</div>
+          <div class="leader-item" onclick="window.appController.openStudentProfile('${item.student.id}')" role="button" tabindex="0" aria-label="Student record for ${escapeHtml(item.student.name)}">
+            <div class="leader-row-top">
+              <div class="leader-identity">
+                <div class="leader-rank rank-${rank}">#${rank}</div>
+                <div class="leader-student-info">
+                  <span class="student-name">${escapeHtml(item.student.name)}</span>
+                  <span class="student-meta">${escapeHtml(item.student.classSection)} · Roll ${escapeHtml(item.student.rollNo || 'N/A')}</span>
+                </div>
+              </div>
+              <div class="leader-badges">
+                ${lastSevBadge}
+                <span class="violation-count-pill">${m.totalViolations} Violation${m.totalViolations > 1 ? 's' : ''}</span>
               </div>
             </div>
-            <div class="leader-right">
-              <span class="violation-pill">${m.totalViolations} Violation${m.totalViolations > 1 ? 's' : ''}</span>
-              ${renderSeverityMeter(m.scorePercentage, m.barColor, m.status, m.statusClass)}
+            <div class="leader-row-meter">
+              <div class="leader-meter-label">
+                <span class="meter-status-pill ${m.statusClass}">${m.status}</span>
+                <span class="meter-percent-num">${clampedScore}%</span>
+              </div>
+              <div class="meter-track" title="Cumulative Disciplinary Rating: ${clampedScore}%">
+                <div class="meter-fill" style="transform: scaleX(${scaleFactor}); background-color: ${m.barColor};"></div>
+              </div>
             </div>
           </div>
         `;
@@ -1467,250 +1252,74 @@
         const s = students[i];
         const opt = document.createElement('option');
         opt.value = s.id;
-        opt.textContent = `${s.name} (${s.classSection}${s.rollNo ? ' - Roll: ' + s.rollNo : ''})`;
+        opt.textContent = `${s.name} (${s.classSection} ${s.rollNo ? '- Roll ' + s.rollNo : ''})`;
         fragment.appendChild(opt);
       }
 
       sel.innerHTML = '';
       sel.appendChild(fragment);
-      if (currentVal && store.getStudentById(currentVal)) {
-        sel.value = currentVal;
-      }
-    }
-
-    populateClassDropdowns() {
-      const students = store.getStudents();
-      const classSet = new Set();
-      for (let i = 0; i < students.length; i++) {
-        if (students[i].classSection) classSet.add(students[i].classSection);
-      }
-      const classes = Array.from(classSet).sort();
-
-      const sel = document.getElementById('records-class-filter');
-      if (!sel) return;
-
-      const currentVal = sel.value;
-      sel.innerHTML = '<option value="all">All Classes</option>';
-      for (let i = 0; i < classes.length; i++) {
-        const opt = document.createElement('option');
-        opt.value = classes[i];
-        opt.textContent = classes[i];
-        sel.appendChild(opt);
-      }
       if (currentVal) sel.value = currentVal;
     }
 
-    // --- Global Search (Students and Issues) ---
-    handleGlobalSearch(query) {
-      const dropdown = document.getElementById('search-results-dropdown');
-      if (!dropdown) return;
-
-      const students = store.getStudents();
-      const issues = store.getIssues();
-
-      const studentMatches = [];
-      for (let i = 0; i < students.length; i++) {
-        const s = students[i];
-        if (
-          s.name.toLowerCase().includes(query) ||
-          s.classSection.toLowerCase().includes(query) ||
-          (s.rollNo && s.rollNo.toLowerCase().includes(query))
-        ) {
-          studentMatches.push(s);
-          if (studentMatches.length >= 5) break;
-        }
+    openAddViolationModal() {
+      const dateEl = document.getElementById('v-auto-date-badge');
+      if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString('en-US', { dateStyle: 'full' }) + ' at ' + new Date().toLocaleTimeString('en-US');
       }
-
-      const issueMatches = [];
-      for (let i = 0; i < issues.length; i++) {
-        const iss = issues[i];
-        if (
-          iss.title.toLowerCase().includes(query) ||
-          iss.description.toLowerCase().includes(query) ||
-          iss.category.toLowerCase().includes(query)
-        ) {
-          issueMatches.push(iss);
-          if (issueMatches.length >= 4) break;
-        }
-      }
-
-      if (studentMatches.length === 0 && issueMatches.length === 0) {
-        dropdown.innerHTML = `
-          <div style="padding: 1.25rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
-            No student or issue found matching "<strong>${escapeHtml(query)}</strong>"
-          </div>
-        `;
-      } else {
-        let html = '';
-        if (studentMatches.length > 0) {
-          html += `<div style="padding: 6px 12px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Students</div>`;
-          html += studentMatches.map(s => {
-            const m = store.getStudentMetrics(s.id);
-            const initials = s.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-            return `
-              <div class="search-item" onclick="window.appController.openStudentProfile('${s.id}')">
-                <div class="search-item-info">
-                  <div class="search-avatar">${initials}</div>
-                  <div class="search-item-text">
-                    <div class="student-name">${escapeHtml(s.name)}</div>
-                    <div class="student-class">${escapeHtml(s.classSection)} | Roll: ${escapeHtml(s.rollNo || 'N/A')}</div>
-                  </div>
-                </div>
-                <div><span class="search-item-badge ${m.statusClass}">${m.totalViolations} Violations</span></div>
-              </div>
-            `;
-          }).join('');
-        }
-
-        if (issueMatches.length > 0) {
-          html += `<div style="padding: 6px 12px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; border-top: 1px solid var(--border-color);">Issues & Tasks</div>`;
-          html += issueMatches.map(iss => {
-            return `
-              <div class="search-item" onclick="window.appController.openIssueDetail('${iss.id}')">
-                <div class="search-item-info">
-                  <div class="search-avatar" style="background: ${iss.status === 'solved' ? '#10B981' : '#0284C7'};">💡</div>
-                  <div class="search-item-text">
-                    <div class="student-name">${escapeHtml(iss.title)}</div>
-                    <div class="student-class">${iss.status === 'solved' ? '🟢 Solved' : '🔴 Unsolved'} | Priority: ${iss.priority}</div>
-                  </div>
-                </div>
-                <div><span class="badge-priority priority-${iss.priority.toLowerCase()}">${iss.priority}</span></div>
-              </div>
-            `;
-          }).join('');
-        }
-
-        dropdown.innerHTML = html;
-      }
-
-      dropdown.classList.add('active');
-    }
-
-    // --- Modal Openers ---
-    openAddViolationModal(studentId = null) {
-      const select = document.getElementById('v-student-select');
-      const classSelect = document.getElementById('v-class-select');
-      const classCustom = document.getElementById('v-class-custom');
-      const detailsInput = document.getElementById('violation-details-input');
-      const dateBadge = document.getElementById('v-auto-date-badge');
-      const memberChip = document.getElementById('v-member-author-chip');
-
-      if (detailsInput) detailsInput.value = '';
-      if (classCustom) {
-        classCustom.value = '';
-        classCustom.style.display = 'none';
-      }
-
-      const user = window.authManager.getCurrentUser();
-      if (memberChip) {
-        memberChip.textContent = `Logging as: ${user.name} (${user.role})`;
-      }
-
-      if (dateBadge) {
-        dateBadge.innerHTML = `
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          Detected: <strong>${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}, Today</strong> (Auto-logged)
-        `;
-      }
-
-      if (select && studentId) {
-        select.value = studentId;
-        const student = store.getStudentById(studentId);
-        if (student && classSelect) {
-          this.ensureClassOption(classSelect, student.classSection);
-          classSelect.value = student.classSection;
-        }
-      }
-
-      this.selectedSeverity = 'Medium';
-      document.querySelectorAll('.sev-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-sev') === 'Medium');
-      });
-
+      this.populateStudentSelectDropdowns();
+      this.selectSeverity(this.selectedSeverity || 'Medium');
       openModal('add-violation-modal');
     }
 
-    openIssuesHub() {
-      this.renderIssuesHub();
-      openModal('issues-modal');
-    }
-
-    openAddIssueModal() {
-      document.getElementById('add-issue-form')?.reset();
-      openModal('add-issue-modal');
-    }
-
-    openRecordsModal() {
-      this.recordsPage = 1;
-      this.renderMasterTable();
-      openModal('records-modal');
-    }
-
-    openStudentProfile(studentId) {
-      document.getElementById('search-results-dropdown')?.classList.remove('active');
-      this.currentProfileStudentId = studentId;
-      this.renderStudentProfile(studentId);
-      openModal('student-profile-modal');
-    }
-
-    openStaffModal() {
-      this.renderStaffList();
-      openModal('staff-modal');
-    }
-
-    // --- Add Violation Action ---
-    saveViolation() {
-      const studentSelect = document.getElementById('v-student-select');
-      const classSelect = document.getElementById('v-class-select');
-      const classCustom = document.getElementById('v-class-custom');
-      const detailsInput = document.getElementById('violation-details-input');
-
-      const studentId = studentSelect?.value;
-      const details = detailsInput?.value.trim();
+    handleAddViolationSubmit(e) {
+      e.preventDefault();
+      const studentId = document.getElementById('v-student-select').value;
+      const classSection = document.getElementById('v-class-select').value;
+      const details = document.getElementById('violation-details-input').value;
 
       if (!studentId) {
         showToast('Please select a student', 'error');
         return;
       }
-      if (!details) {
-        showToast('Please enter violation details', 'error');
+      if (!details.trim()) {
+        showToast('Please describe the infraction incident', 'error');
         return;
       }
 
-      const student = store.getStudentById(studentId);
-      const studentName = student ? student.name : 'Unknown';
-      let classSection = classSelect?.value === 'Custom' ? classCustom?.value.trim() : classSelect?.value.trim();
-      if (!classSection) {
-        classSection = student ? student.classSection : 'General';
-      }
+      try {
+        const v = store.addViolation({
+          studentId,
+          classSection,
+          severity: this.selectedSeverity,
+          details
+        });
 
-      store.addViolation({
-        studentId,
-        studentName,
-        classSection,
-        details,
-        severity: this.selectedSeverity
-      });
-
-      showToast(`Violation saved for ${studentName}`, 'success');
-      closeModal('add-violation-modal');
-
-      this.renderQuickStats();
-      if (document.getElementById('records-modal')?.classList.contains('active')) {
-        this.renderMasterTable();
-      }
-      if (this.currentProfileStudentId === studentId) {
-        this.renderStudentProfile(studentId);
+        showToast(`Violation logged for ${v.studentName}`, 'success');
+        document.getElementById('add-violation-form').reset();
+        this.addViolationDraft = null;
+        closeModal('add-violation-modal');
+        this.renderAll();
+      } catch (err) {
+        showToast(err.message, 'error');
       }
     }
 
     // --- Issues Hub Implementation ---
+    openIssuesHubModal() {
+      this.renderIssuesHub();
+      openModal('issues-modal');
+    }
+
+    openAddIssueModal() {
+      openModal('add-issue-modal');
+    }
+
     renderIssuesHub() {
       const listEl = document.getElementById('issues-list-container');
       const countAllEl = document.getElementById('issue-count-all');
       const countUnsolvedEl = document.getElementById('issue-count-unsolved');
       const countSolvedEl = document.getElementById('issue-count-solved');
-      const subtitleEl = document.getElementById('issues-header-subtitle');
+      const countTextEl = document.getElementById('issues-header-count-text');
 
       const issues = store.getIssues();
       const allCount = issues.length;
@@ -1721,14 +1330,11 @@
       if (countUnsolvedEl) countUnsolvedEl.textContent = unsolvedCount;
       if (countSolvedEl) countSolvedEl.textContent = solvedCount;
 
-      const countTextEl = document.getElementById('issues-header-count-text');
       if (countTextEl) {
         countTextEl.textContent = `${unsolvedCount} unsolved of ${allCount} total`;
-      } else if (subtitleEl) {
-        subtitleEl.textContent = `${unsolvedCount} unsolved of ${allCount} total`;
       }
 
-      let filtered = issues;
+      let filtered = [...issues];
 
       // Status filter
       if (this.issueStatusFilter === 'unsolved') {
@@ -1737,7 +1343,7 @@
         filtered = filtered.filter(i => i.status === 'solved');
       }
 
-      // Priority filter (Low, Medium, High only; migrate Urgent -> High)
+      // Priority filter (High, Medium, Low; legacy Urgent -> High)
       if (this.issuePriorityFilter !== 'all') {
         filtered = filtered.filter(i => {
           let p = i.priority || 'Medium';
@@ -1746,10 +1352,10 @@
         });
       }
 
-      // Search filter (title, description, category, creatorName)
+      // Search filter
       if (this.issueSearchTerm) {
-        const q = this.issueSearchTerm.toLowerCase();
-        filtered = filtered.filter(i => 
+        const q = this.issueSearchTerm;
+        filtered = filtered.filter(i =>
           (i.title && i.title.toLowerCase().includes(q)) ||
           (i.description && i.description.toLowerCase().includes(q)) ||
           (i.creatorName && i.creatorName.toLowerCase().includes(q)) ||
@@ -1759,7 +1365,7 @@
 
       // Sorting
       if (this.issueSortBy === 'newest') {
-        filtered.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       } else if (this.issueSortBy === 'efforts') {
         filtered.sort((a, b) => (b.efforts?.length || 0) - (a.efforts?.length || 0));
       } else if (this.issueSortBy === 'priority') {
@@ -1771,13 +1377,10 @@
 
       if (filtered.length === 0) {
         listEl.innerHTML = `
-          <div class="issues-empty-state">
-            <div class="empty-icon-wrap">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            </div>
-            <h4 class="empty-title">No issues found</h4>
-            <p class="empty-desc">No issues match the selected filter or search criteria.</p>
-            <button type="button" class="btn btn-primary btn-sm" onclick="window.appController.openAddIssueModal()">+ Add New Issue</button>
+          <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); background: var(--bg-surface-alt); border-radius: var(--radius-card); border: 1px dashed var(--border-color);">
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">No matching issues found</div>
+            <p style="font-size: 0.85rem; margin-bottom: 1rem;">No issues match your current filter or search criteria.</p>
+            <button type="button" class="btn btn-primary btn-sm" onclick="window.appController.openAddIssueModal()">+ Raise New Issue</button>
           </div>
         `;
         return;
@@ -1786,73 +1389,41 @@
       listEl.innerHTML = filtered.map(iss => {
         const effortCount = iss.efforts?.length || 0;
         const isSolved = iss.status === 'solved';
-        
-        // Normalize priority to 3 levels: High, Medium, Low (Urgent becomes High)
+
         let priority = iss.priority || 'Medium';
         if (priority === 'Urgent') priority = 'High';
         if (!['High', 'Medium', 'Low'].includes(priority)) priority = 'Medium';
-        const priorityLower = priority.toLowerCase();
+        const priorityClass = `priority-${priority.toLowerCase()}`;
+        const statusClass = isSolved ? 'status-solved' : 'status-unsolved';
 
-        // Calculate reporter initials
         const reporterName = iss.creatorName || 'Staff Member';
-        const reporterParts = reporterName.trim().split(/\s+/);
-        const initials = reporterParts.length >= 2 
-          ? (reporterParts[0][0] + reporterParts[reporterParts.length - 1][0]).toUpperCase()
-          : reporterName.slice(0, 2).toUpperCase();
-
-        const mainIconSvg = getIssueMainIcon(iss);
-        const categoryIconSvg = getCategoryIcon(iss.category);
+        const reporterInitials = reporterName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
         return `
-          <div class="issue-card ${isSolved ? 'issue-card-solved' : 'issue-card-unsolved'}" onclick="window.appController.openIssueDetail('${iss.id}')">
-            <!-- 1. Top Badges Row -->
-            <div class="card-badges-row">
-              <div class="card-badges-left">
-                <span class="card-status-badge">
-                  ${isSolved ? `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    <span>Solved</span>
-                  ` : `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    <span>Unsolved</span>
-                  `}
-                </span>
-                <span class="card-priority-pill priority-pill-${priorityLower}">
-                  ${priority === 'High' ? '!!! High' : (priority === 'Medium' ? '!! Medium' : '! Low')}
-                </span>
+          <div class="issue-card ${priorityClass} ${statusClass}" onclick="window.appController.openIssueDetail('${iss.id}')" role="button" tabindex="0" aria-label="Issue: ${escapeHtml(iss.title)}">
+            <div>
+              <div class="issue-card-top-badges">
+                <span class="issue-status-pill ${isSolved ? 'status-pill-solved' : 'status-pill-unsolved'}">${isSolved ? 'Solved' : 'Unsolved'}</span>
+                <span class="issue-priority-pill prio-${priority.toLowerCase()}-pill">${priority} Priority</span>
               </div>
-              <div class="card-badges-right">
-                <span class="card-category-pill">
-                  ${categoryIconSvg}
-                  <span>${escapeHtml(iss.category || 'General')}</span>
-                </span>
+              <div class="issue-category-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>${escapeHtml(iss.category || 'General')}</span>
               </div>
+              <h4 class="issue-card-title">${escapeHtml(iss.title)}</h4>
+              <p class="issue-card-desc">${escapeHtml(iss.description)}</p>
             </div>
-
-            <!-- 2. Middle Content Row: Icon Box + Title & Description -->
-            <div class="card-content-row">
-              <div class="card-icon-box">
-                ${mainIconSvg}
-              </div>
-              <div class="card-icon-divider"></div>
-              <div class="card-text-col">
-                <h4 class="card-title-text" dir="auto">${escapeHtml(iss.title)}</h4>
-                <p class="card-desc-text" dir="auto">${escapeHtml(iss.description)}</p>
-              </div>
-            </div>
-
-            <!-- 3. Bottom Footer Row -->
-            <div class="card-footer-row">
-              <div class="card-reporter-wrap">
-                <div class="card-reporter-avatar">${initials}</div>
-                <div class="card-reporter-info">
-                  <span class="card-reporter-name">Reported by <strong>${escapeHtml(reporterName)}</strong></span>
-                  <span class="card-reporter-date">${getRelativeDate(iss.createdAt)}</span>
+            <div>
+              <div class="issue-card-divider"></div>
+              <div class="issue-card-footer">
+                <div class="issue-reporter-info">
+                  <div class="reporter-avatar">${reporterInitials}</div>
+                  <span class="reporter-name">${escapeHtml(reporterName)}</span>
                 </div>
-              </div>
-              <div class="card-effort-pill">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                <span>${effortCount} Effort${effortCount === 1 ? '' : 's'}</span>
+                <div class="issue-effort-pill">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="14"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+                  <span>${effortCount} effort${effortCount === 1 ? '' : 's'}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1860,145 +1431,98 @@
       }).join('');
     }
 
-    saveNewIssue() {
-      const titleInput = document.getElementById('new-issue-title') || document.getElementById('issue-title-input');
-      const descInput = document.getElementById('new-issue-desc') || document.getElementById('issue-desc-input');
-      const prioSelect = document.getElementById('new-issue-priority') || document.getElementById('issue-priority-select');
-      const catInput = document.getElementById('new-issue-category') || document.getElementById('issue-category-select');
+    handleAddIssueSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('issue-title-input').value;
+      const category = document.getElementById('issue-category-select').value;
+      const priority = document.getElementById('issue-priority-select').value;
+      const description = document.getElementById('issue-desc-input').value;
 
-      const title = titleInput?.value.trim();
-      const description = descInput?.value.trim();
-
-      if (!title || !description) {
-        showToast('Title and description are required', 'error');
+      if (!title.trim() || !description.trim()) {
+        showToast('Please provide an issue title and description', 'error');
         return;
       }
 
-      const issue = store.addIssue({
-        title,
-        description,
-        priority: prioSelect?.value || 'Medium',
-        category: catInput?.value.trim() || 'General'
-      });
-
-      showToast(`Issue created: "${issue.title}"`, 'success');
+      const iss = store.addIssue({ title, description, category, priority });
+      showToast(`Issue created: ${iss.title}`, 'success');
+      document.getElementById('add-issue-form').reset();
       closeModal('add-issue-modal');
-      this.renderQuickStats();
-      this.renderIssuesHub();
+      this.renderAll();
     }
 
-    // --- Issue Detail & Efforts Section ---
     openIssueDetail(issueId) {
-      document.getElementById('search-results-dropdown')?.classList.remove('active');
-      this.activeIssueId = issueId;
+      this.currentViewingIssueId = issueId;
       this.renderIssueDetail(issueId);
       openModal('issue-detail-modal');
     }
 
     renderIssueDetail(issueId) {
-      const issue = store.getIssueById(issueId);
+      const issue = store.getIssue(issueId);
       if (!issue) return;
 
-      const titleEl = document.getElementById('detail-issue-title');
-      const bannerEl = document.getElementById('detail-issue-banner');
-      const effortsListEl = document.getElementById('detail-efforts-list');
-      const solveBtnWrap = document.getElementById('detail-solve-btn-container');
+      const user = window.authManager.getCurrentUser();
+      const isCreatorOrAdmin = user.role === 'Admin' || user.id === issue.creatorId;
 
-      if (titleEl) titleEl.textContent = issue.title;
+      document.getElementById('detail-issue-title').textContent = issue.title;
+      document.getElementById('detail-issue-category').textContent = issue.category;
+      document.getElementById('detail-issue-priority').textContent = `${issue.priority} Priority`;
+      document.getElementById('detail-issue-priority').className = `issue-priority-pill prio-${(issue.priority || 'Medium').toLowerCase()}-pill`;
+      document.getElementById('detail-issue-desc').textContent = issue.description;
 
+      const statusBadge = document.getElementById('detail-issue-status');
       const isSolved = issue.status === 'solved';
-      const currentUser = window.authManager.getCurrentUser();
-      const canSolve = window.authManager.canSolveIssue(issue);
+      statusBadge.textContent = isSolved ? 'Solved' : 'Unsolved';
+      statusBadge.className = `issue-status-pill ${isSolved ? 'status-pill-solved' : 'status-pill-unsolved'}`;
 
-      if (bannerEl) {
-        bannerEl.innerHTML = `
-          ${isSolved ? `
-            <div class="issue-solved-callout">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              <div>
-                <div><strong>SOLVED</strong> by <strong>${escapeHtml(issue.solvedByName || 'Staff Member')}</strong></div>
-                <div style="font-size: 0.78rem; opacity: 0.9;">Resolved on ${formatDateTime(issue.solvedAt)}</div>
-              </div>
+      document.getElementById('detail-issue-creator').textContent = `${issue.creatorName} (${issue.creatorRole}) on ${formatDateTime(issue.createdAt)}`;
+
+      // Solve / Reopen Action Container
+      const solveBtnContainer = document.getElementById('detail-solve-btn-container');
+      if (solveBtnContainer) {
+        if (isSolved) {
+          solveBtnContainer.innerHTML = `
+            <div style="background: var(--issue-solved-bg); border: 1px solid #BBF7D0; border-radius: var(--radius-control); padding: 0.75rem 1rem; width: 100%; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <span style="font-size: 0.84rem; color: #166534; font-weight: 600;">
+                ✓ Solved by ${escapeHtml(issue.solvedByName || 'Admin')} on ${formatDateTime(issue.solvedAt)}
+              </span>
+              ${isCreatorOrAdmin ? `<button id="reopen-issue-btn" class="btn btn-secondary btn-sm" onclick="window.appController.handleReopenIssue('${issue.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reopen Issue</button>` : ''}
             </div>
-          ` : ''}
-
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <span class="badge-status ${isSolved ? 'badge-solved' : 'badge-unsolved'}">${isSolved ? '🟢 Solved' : '🔴 Unsolved'}</span>
-              <span class="badge-priority priority-${issue.priority.toLowerCase()}">${issue.priority} Priority</span>
-              <span style="font-size: 0.78rem; background: var(--bg-surface); padding: 2px 8px; border-radius: var(--radius-full); border: 1px solid var(--border-color);">${escapeHtml(issue.category)}</span>
-            </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Created: ${formatDateTime(issue.createdAt)}</div>
-          </div>
-
-          <p class="urdu-text" dir="auto" style="font-size: 1rem; color: var(--text-primary); line-height: 1.6; margin-bottom: 0.75rem;">
-            ${escapeHtml(issue.description)}
-          </p>
-
-          <div style="font-size: 0.8rem; color: var(--text-secondary); border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
-            Created by: <strong>${escapeHtml(issue.creatorName)}</strong> (${issue.creatorRole})
-          </div>
-        `;
-      }
-
-      // Solve / Reopen Button (Visible ONLY to Creator or Admin)
-      if (solveBtnWrap) {
-        if (canSolve) {
-          if (isSolved) {
-            solveBtnWrap.innerHTML = `
-              <button class="btn btn-secondary btn-sm" onclick="window.appController.reopenIssueConfirm('${issue.id}')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 2v6h6M21.5 22v-6h-6"/><path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.2"/></svg>
-                Reopen Issue
-              </button>
-            `;
-          } else {
-            solveBtnWrap.innerHTML = `
-              <button class="btn btn-success btn-sm" onclick="window.appController.markSolvedConfirm('${issue.id}')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Mark as Solved
-              </button>
-            `;
-          }
-        } else {
-          solveBtnWrap.innerHTML = `
-            <span style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;">
-              Only creator (${escapeHtml(issue.creatorName)}) or Admin can mark as solved.
-            </span>
           `;
+        } else if (isCreatorOrAdmin) {
+          solveBtnContainer.innerHTML = `
+            <button id="solve-issue-btn" class="btn btn-primary btn-sm" onclick="window.appController.handleSolveIssue('${issue.id}')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg> Mark as Solved
+            </button>
+          `;
+        } else {
+          solveBtnContainer.innerHTML = '';
         }
       }
 
-      // Efforts Timeline
-      if (effortsListEl) {
-        const efforts = issue.efforts || [];
+      // Render Efforts Timeline
+      const effortsList = document.getElementById('detail-efforts-list');
+      const efforts = issue.efforts || [];
+
+      if (effortsList) {
         if (efforts.length === 0) {
-          effortsListEl.innerHTML = `
-            <div style="text-align: center; padding: 1.5rem; color: var(--text-muted); background: var(--bg-surface-alt); border-radius: var(--radius-md);">
-              No efforts logged yet. Be the first staff member to record what you did!
-            </div>
-          `;
+          effortsList.innerHTML = `<p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; padding: 0.5rem 0;">No staff actions recorded yet. Use the form above to log your contribution.</p>`;
         } else {
-          effortsListEl.innerHTML = efforts.map(eff => {
-            const canEdit = window.authManager.canEditEffort(eff);
-            const canDelete = window.authManager.canDeleteEffort(eff);
+          effortsList.innerHTML = efforts.map(eff => {
+            const canEdit = user.id === eff.memberId;
+            const canDelete = user.role === 'Admin' || user.id === eff.memberId;
             return `
-              <div class="effort-card">
+              <div class="effort-card" id="effort-card-${eff.id}">
                 <div class="effort-header">
                   <div class="effort-author-wrap">
-                    <span class="effort-author-name">${escapeHtml(eff.memberName)}</span>
+                    <span>${escapeHtml(eff.memberName)}</span>
                     <span class="role-badge ${eff.memberRole === 'Admin' ? 'role-badge-admin' : 'role-badge-member'}">${eff.memberRole}</span>
                   </div>
                   <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="color: var(--text-muted); font-size: 0.74rem;">${formatDateTime(eff.timestamp)}</span>
-                    ${canEdit ? `
-                      <button class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 0.72rem; min-height: 26px;" onclick="window.appController.editEffortPrompt('${issue.id}', '${eff.id}')">Edit</button>
-                    ` : ''}
-                    ${canDelete ? `
-                      <button class="btn btn-danger btn-sm" style="padding: 1px 6px; font-size: 0.72rem; min-height: 26px;" onclick="window.appController.deleteEffortPrompt('${issue.id}', '${eff.id}')">Delete</button>
-                    ` : ''}
+                    <span>${formatDateTime(eff.timestamp)}</span>
+                    ${canDelete ? `<button type="button" onclick="window.appController.handleDeleteEffort('${issue.id}', '${eff.id}')" title="Delete effort" style="color: #EF4444; font-size: 1.1rem; line-height: 1;">&times;</button>` : ''}
                   </div>
                 </div>
-                <div class="effort-text urdu-text" dir="auto">${escapeHtml(eff.text)}</div>
+                <div class="effort-text" id="effort-text-${eff.id}">${escapeHtml(eff.text)}</div>
               </div>
             `;
           }).join('');
@@ -2006,124 +1530,57 @@
       }
     }
 
-    saveNewEffort() {
-      if (!this.activeIssueId) return;
+    handleAddEffortSubmit(e) {
+      e.preventDefault();
+      if (!this.currentViewingIssueId) return;
+
       const input = document.getElementById('new-effort-text');
-      const text = input?.value.trim();
+      const text = input.value.trim();
+      if (!text) return;
 
-      if (!text) {
-        showToast('Please type your contribution note', 'error');
-        return;
-      }
-
-      store.addEffortToIssue(this.activeIssueId, text);
-      showToast('Effort logged to issue!', 'success');
-      if (input) input.value = '';
-      this.renderIssueDetail(this.activeIssueId);
+      store.addEffortToIssue(this.currentViewingIssueId, text);
+      input.value = '';
+      showToast('Effort contribution logged', 'success');
+      this.renderIssueDetail(this.currentViewingIssueId);
       this.renderIssuesHub();
     }
 
-    markSolvedConfirm(issueId) {
-      showConfirmModal(
-        'Mark Issue as Solved',
-        'Has this institute problem been successfully addressed and verified? It will be marked as solved.',
-        'Yes, Mark Solved',
-        () => {
-          store.markIssueSolved(issueId);
-          showToast('Issue marked as Solved! 🎉', 'success');
-          this.renderQuickStats();
-          this.renderIssuesHub();
-          if (this.activeIssueId === issueId) {
-            this.renderIssueDetail(issueId);
-          }
-        }
-      );
-    }
-
-    reopenIssueConfirm(issueId) {
-      showConfirmModal(
-        'Reopen Issue',
-        'Do you want to reopen this issue for further staff efforts and follow-up?',
-        'Reopen Issue',
-        () => {
-          store.reopenIssue(issueId);
-          showToast('Issue reopened for staff collaboration', 'warning');
-          this.renderQuickStats();
-          this.renderIssuesHub();
-          if (this.activeIssueId === issueId) {
-            this.renderIssueDetail(issueId);
-          }
-        }
-      );
-    }
-
-    editEffortPrompt(issueId, effortId) {
-      const issue = store.getIssueById(issueId);
-      const effort = issue?.efforts?.find(e => e.id === effortId);
-      if (!effort) return;
-
-      const newText = prompt('Edit your effort note:', effort.text);
-      if (newText !== null && newText.trim()) {
-        store.updateEffort(issueId, effortId, newText);
-        showToast('Effort updated', 'success');
+    handleDeleteEffort(issueId, effortId) {
+      showConfirmModal('Delete Effort', 'Are you sure you want to remove this logged contribution?', 'Delete', () => {
+        store.deleteEffort(issueId, effortId);
+        showToast('Effort entry removed', 'success');
         this.renderIssueDetail(issueId);
-      }
+        this.renderIssuesHub();
+      });
     }
 
-    deleteEffortPrompt(issueId, effortId) {
-      showConfirmModal(
-        'Delete Effort Note',
-        'Are you sure you want to delete this effort contribution?',
-        'Delete',
-        () => {
-          store.deleteEffort(issueId, effortId);
-          showToast('Effort note deleted', 'success');
-          this.renderIssueDetail(issueId);
-          this.renderIssuesHub();
-        }
-      );
+    handleSolveIssue(issueId) {
+      showConfirmModal('Mark Issue as Solved', 'Has this institutional issue been satisfactorily resolved?', 'Confirm Solved', () => {
+        store.solveIssue(issueId);
+        showToast('Issue marked as solved!', 'success');
+        this.renderIssueDetail(issueId);
+        this.renderIssuesHub();
+      });
     }
 
-    // --- Save Student ---
-    saveNewStudent() {
-      const name = document.getElementById('new-std-name')?.value.trim();
-      const classSection = document.getElementById('new-std-class')?.value.trim();
-      const rollNo = document.getElementById('new-std-roll')?.value.trim();
-      const guardianPhone = document.getElementById('new-std-phone')?.value.trim();
-      const notes = document.getElementById('new-std-notes')?.value.trim();
-
-      if (!name || !classSection) {
-        showToast('Name and Class are required', 'error');
-        return;
-      }
-
-      const newStd = store.addStudent({ name, classSection, rollNo, guardianPhone, notes });
-      showToast(`Student ${newStd.name} added!`, 'success');
-      closeModal('add-student-modal');
-
-      this.populateStudentSelectDropdowns();
-      this.populateClassDropdowns();
-
-      const vSelect = document.getElementById('v-student-select');
-      const vClass = document.getElementById('v-class-select');
-      if (vSelect) vSelect.value = newStd.id;
-      if (vClass) {
-        this.ensureClassOption(vClass, newStd.classSection);
-        vClass.value = newStd.classSection;
-      }
-
-      this.renderQuickStats();
-      if (document.getElementById('records-modal')?.classList.contains('active')) {
-        this.renderMasterTable();
-      }
-      document.getElementById('add-student-form')?.reset();
+    handleReopenIssue(issueId) {
+      store.reopenIssue(issueId);
+      showToast('Issue reopened for follow-up', 'success');
+      this.renderIssueDetail(issueId);
+      this.renderIssuesHub();
     }
 
-    // --- Master Table ---
+    // --- Master Records Table & Student Profiles ---
+    openRecordsModal() {
+      this.recordsPage = 1;
+      this.renderMasterTable();
+      openModal('records-modal');
+    }
+
     renderMasterTable() {
-      const tableBody = document.getElementById('master-records-table-body');
+      const tbody = document.getElementById('master-records-table-body');
       const paginationEl = document.getElementById('master-records-pagination');
-      if (!tableBody) return;
+      if (!tbody) return;
 
       const students = store.getStudents();
       let filtered = [];
@@ -2132,9 +1589,10 @@
         const s = students[i];
         if (this.masterClassFilter !== 'all' && s.classSection !== this.masterClassFilter) continue;
         if (this.masterSearchTerm) {
-          const match = s.name.toLowerCase().includes(this.masterSearchTerm) ||
-                        s.classSection.toLowerCase().includes(this.masterSearchTerm) ||
-                        (s.rollNo && s.rollNo.toLowerCase().includes(this.masterSearchTerm));
+          const q = this.masterSearchTerm;
+          const match = s.name.toLowerCase().includes(q) ||
+                        s.classSection.toLowerCase().includes(q) ||
+                        (s.rollNo && s.rollNo.toLowerCase().includes(q));
           if (!match) continue;
         }
 
@@ -2142,6 +1600,7 @@
         filtered.push({ student: s, metrics });
       }
 
+      // Sorting
       if (this.masterSortBy === 'violations-desc') {
         filtered.sort((a, b) => b.metrics.totalViolations - a.metrics.totalViolations || b.metrics.totalPoints - a.metrics.totalPoints);
       } else if (this.masterSortBy === 'violations-asc') {
@@ -2160,34 +1619,29 @@
       if (this.recordsPage < 1) this.recordsPage = 1;
 
       const startIndex = (this.recordsPage - 1) * this.recordsPageSize;
-      const paginatedItems = filtered.slice(startIndex, startIndex + this.recordsPageSize);
+      const paginated = filtered.slice(startIndex, startIndex + this.recordsPageSize);
 
-      if (paginatedItems.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">No student records found.</td></tr>`;
+      if (paginated.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">No student records found.</td></tr>`;
         if (paginationEl) paginationEl.innerHTML = '';
         return;
       }
 
-      tableBody.innerHTML = paginatedItems.map(item => {
+      tbody.innerHTML = paginated.map(item => {
         const s = item.student;
         const r = item.metrics;
-        const initials = s.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
         return `
           <tr onclick="window.appController.openStudentProfile('${s.id}')">
             <td>
-              <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <div class="member-avatar" style="width: 32px; height: 32px; font-size: 0.78rem;">${initials}</div>
-                <div>
-                  <div style="font-weight: 700; color: var(--text-primary);">${escapeHtml(s.name)}</div>
-                  <div style="font-size: 0.76rem; color: var(--text-muted);">Roll: ${escapeHtml(s.rollNo || 'N/A')}</div>
-                </div>
-              </div>
+              <div style="font-weight: 600; color: var(--text-primary);">${escapeHtml(s.name)}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">${escapeHtml(s.guardianPhone || 'No Phone')}</div>
             </td>
-            <td><span class="role-badge role-badge-member">${escapeHtml(s.classSection)}</span></td>
             <td>
-              <span class="violation-pill" style="font-size: 0.82rem;">
-                ${r.totalViolations} Violation${r.totalViolations === 1 ? '' : 's'}
-              </span>
+              <span class="role-badge role-badge-member">${escapeHtml(s.classSection)}</span>
+              ${s.rollNo ? `<span style="font-size: 0.76rem; color: var(--text-muted); margin-left: 4px;">#${escapeHtml(s.rollNo)}</span>` : ''}
+            </td>
+            <td>
+              <span class="violation-count-pill">${r.totalViolations}</span>
             </td>
             <td style="font-size: 0.82rem; color: var(--text-muted); white-space: nowrap;">
               ${r.lastViolationDate ? getRelativeDate(r.lastViolationDate) : '<span style="color:#10B981;">Clean</span>'}
@@ -2196,9 +1650,7 @@
               ${renderSeverityMeter(r.scorePercentage, r.barColor, r.status, r.statusClass)}
             </td>
             <td style="text-align: right;" onclick="event.stopPropagation();">
-              <button class="btn btn-secondary btn-sm" onclick="window.appController.openStudentProfile('${s.id}')" title="View Full Profile">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> Profile
-              </button>
+              <button class="btn btn-secondary btn-sm" onclick="window.appController.openStudentProfile('${s.id}')" title="View Full Profile">Profile</button>
             </td>
           </tr>
         `;
@@ -2206,13 +1658,13 @@
 
       if (paginationEl) {
         paginationEl.innerHTML = `
-          <div class="pagination-info">
-            Showing <strong>${startIndex + 1}</strong> - <strong>${Math.min(startIndex + this.recordsPageSize, totalItems)}</strong> of <strong>${totalItems}</strong> students
+          <div style="font-size: 0.82rem; color: var(--text-muted);">
+            Showing <strong>${startIndex + 1}</strong> - <strong>${Math.min(startIndex + this.recordsPageSize, totalItems)}</strong> of <strong>${totalItems}</strong>
           </div>
-          <div class="pagination-buttons">
-            <button class="page-btn" ${this.recordsPage <= 1 ? 'disabled' : ''} onclick="window.appController.changeRecordsPage(${this.recordsPage - 1})">&larr; Prev</button>
-            <span style="font-size: 0.85rem; font-weight: 600; padding: 0 0.5rem;">Page ${this.recordsPage} of ${totalPages}</span>
-            <button class="page-btn" ${this.recordsPage >= totalPages ? 'disabled' : ''} onclick="window.appController.changeRecordsPage(${this.recordsPage + 1})">Next &rarr;</button>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="btn btn-secondary btn-sm" ${this.recordsPage <= 1 ? 'disabled' : ''} onclick="window.appController.changeRecordsPage(${this.recordsPage - 1})">&larr; Prev</button>
+            <span style="font-size: 0.82rem; font-weight: 600;">Page ${this.recordsPage} of ${totalPages}</span>
+            <button class="btn btn-secondary btn-sm" ${this.recordsPage >= totalPages ? 'disabled' : ''} onclick="window.appController.changeRecordsPage(${this.recordsPage + 1})">Next &rarr;</button>
           </div>
         `;
       }
@@ -2223,57 +1675,56 @@
       this.renderMasterTable();
     }
 
-    // --- Student Profile Dossier & Printable Report ---
+    openStudentProfile(studentId) {
+      this.currentProfileStudentId = studentId;
+      this.renderStudentProfile(studentId);
+      openModal('student-profile-modal');
+    }
+
     renderStudentProfile(studentId) {
-      const student = store.getStudentById(studentId);
+      const student = store.getStudent(studentId);
       if (!student) return;
 
       const metrics = store.getStudentMetrics(studentId);
-      const violations = store.getViolationsForStudent(studentId);
-      const initials = student.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+      const violations = store.getStudentViolations(studentId);
+      const user = window.authManager.getCurrentUser();
 
-      document.getElementById('profile-avatar').textContent = initials;
-      document.getElementById('profile-name').textContent = student.name;
-      document.getElementById('profile-class-chip').textContent = `Class: ${student.classSection}`;
-      document.getElementById('profile-roll-chip').textContent = `Roll No: ${student.rollNo || 'N/A'}`;
-      document.getElementById('profile-phone-chip').textContent = `Parent: ${student.guardianPhone || 'Not Provided'}`;
+      document.getElementById('profile-student-name').textContent = student.name;
+      document.getElementById('profile-student-meta').textContent = `Class: ${student.classSection} · Roll: ${student.rollNo || 'N/A'} · Guardian: ${student.guardianPhone || 'N/A'}`;
+      document.getElementById('profile-total-violations').textContent = metrics.totalViolations;
+      document.getElementById('profile-score-percent').textContent = `${metrics.scorePercentage}%`;
 
-      document.getElementById('profile-meter-placeholder').innerHTML = `
-        <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem;">
-          Disciplinary Severity Meter:
-        </div>
-        ${renderSeverityMeter(metrics.scorePercentage, metrics.barColor, metrics.status, metrics.statusClass)}
-      `;
+      const meterFill = document.getElementById('profile-meter-fill');
+      if (meterFill) {
+        meterFill.style.transform = `scaleX(${(metrics.scorePercentage / 100).toFixed(3)})`;
+        meterFill.style.backgroundColor = metrics.barColor;
+      }
 
-      // Violations list
-      const vListEl = document.getElementById('profile-violations-list');
-      if (vListEl) {
+      const statusBadge = document.getElementById('profile-status-badge');
+      if (statusBadge) {
+        statusBadge.textContent = metrics.status;
+        statusBadge.className = `meter-status-pill ${metrics.statusClass}`;
+      }
+
+      // Chronological History List
+      const historyList = document.getElementById('profile-violations-history');
+      if (historyList) {
         if (violations.length === 0) {
-          vListEl.innerHTML = `<div style="text-align:center; padding: 1.5rem; color: #10B981; font-weight: 600;">✨ No recorded violations! Exemplary discipline.</div>`;
+          historyList.innerHTML = `<p style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-style: italic;">No recorded infractions. Student has a completely clean disciplinary record.</p>`;
         } else {
-          vListEl.innerHTML = violations.map(v => {
-            const conf = SEVERITY_CONFIG[v.severity] || SEVERITY_CONFIG.Medium;
-            const canDelete = window.authManager.isAdmin();
+          historyList.innerHTML = violations.map(v => {
+            const canDelete = user.role === 'Admin';
             return `
-              <div class="v-list-item" style="border-left-color: ${conf.color};">
-                <div class="v-item-left">
-                  <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.35rem;">
-                    <span class="v-severity-badge" style="background-color: ${conf.color};">${conf.label} Severity (+${conf.points} pts)</span>
-                    <span style="font-size: 0.72rem; color: var(--text-muted);">Logged by <strong>${escapeHtml(v.memberName || 'Staff')}</strong></span>
+              <div style="background: var(--bg-surface-alt); border: 1px solid var(--border-color); border-radius: var(--radius-control); padding: 0.85rem 1rem; margin-bottom: 0.65rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+                  <div style="display: flex; align-items: center; gap: 0.45rem;">
+                    <span class="meter-status-pill sev-${v.severity.toLowerCase()}-badge">${v.severity}</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">${formatDateTime(v.timestamp)}</span>
                   </div>
-                  <div class="v-details urdu-text" dir="auto">${escapeHtml(v.details)}</div>
-                  <div class="v-timestamp">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    ${formatDateTime(v.timestamp)}
-                  </div>
+                  ${canDelete ? `<button type="button" onclick="window.appController.handleDeleteViolation('${v.id}')" title="Admin delete violation" style="color: #EF4444; font-size: 1.1rem; line-height: 1;">&times;</button>` : ''}
                 </div>
-                ${canDelete ? `
-                  <div>
-                    <button class="btn btn-danger btn-sm" style="padding: 2px 7px; min-height: 28px;" onclick="window.appController.deleteViolationConfirm('${v.id}')" title="Admin Delete">
-                      Delete
-                    </button>
-                  </div>
-                ` : ''}
+                <div style="font-size: 0.88rem; color: var(--text-primary); line-height: 1.45; overflow-wrap: anywhere;" dir="auto">${escapeHtml(v.details)}</div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.35rem;">Recorded by: ${escapeHtml(v.memberName)} (${v.memberRole})</div>
               </div>
             `;
           }).join('');
@@ -2285,7 +1736,7 @@
       if (printReportEl) {
         printReportEl.innerHTML = `
           <div class="print-header">
-            <h2>${escapeHtml(store.getSettings().instituteName || 'STUDENT DISCIPLINE TRACKER')}</h2>
+            <h2>HADI EDUCATION SYSTEM (HES)</h2>
             <p>Confidential Disciplinary Record & Behavioral Assessment</p>
             <h3 style="margin-top: 10px; text-decoration: underline;">OFFICIAL STUDENT DISCIPLINARY DOSSIER</h3>
             <p style="font-size: 0.85rem; color: #555;">Generated Automatically on ${new Date().toLocaleDateString('en-US', { dateStyle: 'full' })} at ${new Date().toLocaleTimeString('en-US')}</p>
@@ -2305,98 +1756,195 @@
           </div>
 
           <h4 style="margin-bottom: 8px;">RECORDED INFRACTIONS CHRONOLOGY</h4>
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 25px;">
-            <thead>
-              <tr style="background: #f0f0f0;">
-                <th style="border: 1px solid #999; padding: 6px; text-align: left;">#</th>
-                <th style="border: 1px solid #999; padding: 6px; text-align: left;">Date & Time</th>
-                <th style="border: 1px solid #999; padding: 6px; text-align: left;">Severity</th>
-                <th style="border: 1px solid #999; padding: 6px; text-align: left;">Reported By</th>
-                <th style="border: 1px solid #999; padding: 6px; text-align: left;">Infraction Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${violations.length === 0 ? '<tr><td colspan="5" style="border: 1px solid #999; padding: 8px; text-align: center;">No infractions recorded. Clean record.</td></tr>' :
-                violations.map((v, i) => `
-                  <tr>
-                    <td style="border: 1px solid #999; padding: 6px;">${i + 1}</td>
-                    <td style="border: 1px solid #999; padding: 6px;">${formatDateTime(v.timestamp)}</td>
-                    <td style="border: 1px solid #999; padding: 6px; font-weight: bold;">${v.severity}</td>
-                    <td style="border: 1px solid #999; padding: 6px;">${escapeHtml(v.memberName || 'Staff')}</td>
-                    <td style="border: 1px solid #999; padding: 6px;">${escapeHtml(v.details)}</td>
-                  </tr>
-                `).join('')
-              }
-            </tbody>
-          </table>
-
-          <div class="print-signatures">
-            <div class="signature-block">Class Teacher Signature</div>
-            <div class="signature-block">Discipline In-Charge</div>
-            <div class="signature-block">Parent / Guardian Signature</div>
-          </div>
+          ${violations.length === 0 ? '<p>No disciplinary infractions on record. Clean conduct.</p>' : violations.map(v => `
+            <div style="margin-bottom: 12px; border-bottom: 1px dotted #ccc; padding-bottom: 8px;">
+              <div><strong>[${v.severity}]</strong> ${formatDateTime(v.timestamp)} — Recorded by ${escapeHtml(v.memberName)} (${v.memberRole})</div>
+              <div style="margin-top: 4px;" dir="auto">${escapeHtml(v.details)}</div>
+            </div>
+          `).join('')}
         `;
       }
     }
 
-    deleteViolationConfirm(vId) {
-      showConfirmModal(
-        'Delete Violation',
-        'Are you sure you want to delete this recorded violation?',
-        'Delete',
-        () => {
-          store.deleteViolation(vId);
-          showToast('Violation deleted', 'success');
-          this.renderQuickStats();
-          if (this.currentProfileStudentId) {
-            this.renderStudentProfile(this.currentProfileStudentId);
-          }
-          if (document.getElementById('records-modal')?.classList.contains('active')) {
-            this.renderMasterTable();
-          }
-        }
-      );
+    handleDeleteViolation(violationId) {
+      showConfirmModal('Delete Violation Record', 'Are you sure you want to permanently delete this violation?', 'Delete', () => {
+        store.deleteViolation(violationId);
+        showToast('Violation record deleted', 'success');
+        this.renderAll();
+      });
     }
 
-    // --- Staff Management & Quick Switch ---
+    handleAddStudentSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-std-name').value;
+      const classSection = document.getElementById('new-std-class').value;
+      const rollNo = document.getElementById('new-std-roll').value;
+      const guardianPhone = document.getElementById('new-std-phone').value;
+      const notes = document.getElementById('new-std-notes').value;
+
+      if (!name.trim() || !classSection.trim()) {
+        showToast('Please enter full name and class/section', 'error');
+        return;
+      }
+
+      const newStudent = store.addStudent({ name, classSection, rollNo, guardianPhone, notes });
+      document.getElementById('add-student-form').reset();
+      closeModal('add-student-modal');
+      this.populateStudentSelectDropdowns();
+
+      // If this was an inline student addition during Add Violation, auto-select and restore draft!
+      if (this.addViolationDraft) {
+        const sel = document.getElementById('v-student-select');
+        if (sel) sel.value = newStudent.id;
+        const cls = document.getElementById('v-class-select');
+        if (cls) cls.value = newStudent.classSection;
+        if (this.addViolationDraft.details) {
+          document.getElementById('violation-details-input').value = this.addViolationDraft.details;
+        }
+        if (this.addViolationDraft.severity) {
+          this.selectSeverity(this.addViolationDraft.severity);
+        }
+        this.addViolationDraft = null;
+        showToast(`Student ${newStudent.name} created and selected! Continuing draft.`, 'success');
+        openModal('add-violation-modal');
+      } else {
+        showToast(`Student profile created: ${newStudent.name}`, 'success');
+      }
+
+      this.renderAll();
+    }
+
+    handleEditStudentSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-std-id').value;
+      const name = document.getElementById('edit-std-name').value;
+      const classSection = document.getElementById('edit-std-class').value;
+      const rollNo = document.getElementById('edit-std-roll').value;
+      const guardianPhone = document.getElementById('edit-std-phone').value;
+      const notes = document.getElementById('edit-std-notes').value;
+
+      store.updateStudent(id, { name, classSection, rollNo, guardianPhone, notes });
+      showToast('Student profile updated', 'success');
+      closeModal('edit-student-modal');
+      this.renderAll();
+    }
+
+    // --- Global Search Dropdown ---
+    handleGlobalSearch(query) {
+      const dropdown = document.getElementById('search-results-dropdown');
+      const clearBtn = document.getElementById('search-clear-btn');
+      if (!dropdown) return;
+
+      const q = query.trim().toLowerCase();
+      if (!q) {
+        dropdown.classList.remove('active');
+        if (clearBtn) clearBtn.style.display = 'none';
+        return;
+      }
+
+      if (clearBtn) clearBtn.style.display = 'flex';
+
+      const students = store.getStudents();
+      const issues = store.getIssues();
+
+      const matchedStudents = students.filter(s =>
+        s.name.toLowerCase().includes(q) ||
+        s.classSection.toLowerCase().includes(q) ||
+        (s.rollNo && s.rollNo.toLowerCase().includes(q))
+      ).slice(0, 4);
+
+      const matchedIssues = issues.filter(i =>
+        i.title.toLowerCase().includes(q) ||
+        i.description.toLowerCase().includes(q) ||
+        i.category.toLowerCase().includes(q)
+      ).slice(0, 4);
+
+      if (matchedStudents.length === 0 && matchedIssues.length === 0) {
+        dropdown.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">No students or issues matching "${escapeHtml(q)}"</div>`;
+        dropdown.classList.add('active');
+        return;
+      }
+
+      let html = '';
+      if (matchedStudents.length > 0) {
+        html += `<div class="search-group-header">Students (${matchedStudents.length})</div>`;
+        html += matchedStudents.map(s => `
+          <div class="search-item" onclick="window.appController.openStudentProfile('${s.id}'); document.getElementById('search-results-dropdown').classList.remove('active');">
+            <div class="search-item-info">
+              <h4>${escapeHtml(s.name)}</h4>
+              <p>Class: ${escapeHtml(s.classSection)} ${s.rollNo ? '| Roll: ' + escapeHtml(s.rollNo) : ''}</p>
+            </div>
+            <button class="btn btn-secondary btn-sm">Profile</button>
+          </div>
+        `).join('');
+      }
+
+      if (matchedIssues.length > 0) {
+        html += `<div class="search-group-header">Institute Issues (${matchedIssues.length})</div>`;
+        html += matchedIssues.map(i => `
+          <div class="search-item" onclick="window.appController.openIssueDetail('${i.id}'); document.getElementById('search-results-dropdown').classList.remove('active');">
+            <div class="search-item-info">
+              <h4>${escapeHtml(i.title)}</h4>
+              <p>${escapeHtml(i.category)} · <span style="font-weight: 600; color: ${i.status === 'solved' ? '#16A34A' : '#DC2626'};">${i.status === 'solved' ? 'Solved' : 'Unsolved'}</span></p>
+            </div>
+            <button class="btn btn-secondary btn-sm">View</button>
+          </div>
+        `).join('');
+      }
+
+      dropdown.innerHTML = html;
+      dropdown.classList.add('active');
+    }
+
+    // --- Staff Management ---
     renderStaffList() {
       const container = document.getElementById('staff-members-list');
       if (!container) return;
 
       const users = window.authManager.getUsers();
-      const current = window.authManager.getCurrentUser();
+      const currentUser = window.authManager.getCurrentUser();
+      const isAdmin = window.authManager.isAdmin();
 
       container.innerHTML = users.map(u => {
-        const isActive = u.id === current.id;
+        const isCurrent = u.id === currentUser.id;
         const initials = u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
         return `
-          <div class="staff-item ${isActive ? 'active' : ''}" onclick="window.appController.switchMember('${u.id}')">
+          <div style="background: var(--bg-surface); border: 1px solid ${isCurrent ? 'var(--brand-primary)' : 'var(--border-color)'}; border-radius: var(--radius-control); padding: 0.75rem 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <div class="member-avatar ${u.role === 'Admin' ? 'admin-avatar' : ''}">${initials}</div>
               <div>
-                <div style="font-weight: 700; color: var(--text-primary);">${escapeHtml(u.name)} ${isActive ? '⭐ (Current)' : ''}</div>
-                <div style="font-size: 0.76rem; color: var(--text-muted);">${escapeHtml(u.designation || u.role)} | Username: <code>${escapeHtml(u.username)}</code></div>
+                <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">${escapeHtml(u.name)} ${isCurrent ? '<span style="color: var(--brand-primary); font-size: 0.75rem;">(Active)</span>' : ''}</div>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">${escapeHtml(u.designation || u.role)} · @${escapeHtml(u.username)}</div>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span class="role-badge ${u.role === 'Admin' ? 'role-badge-admin' : 'role-badge-member'}">${u.role}</span>
-              ${!isActive ? `<button class="btn btn-secondary btn-sm" style="padding: 2px 8px; min-height: 28px;">Switch</button>` : ''}
+            <div style="display: flex; gap: 0.4rem; align-items: center;">
+              ${!isCurrent ? `<button class="btn btn-secondary btn-sm" onclick="window.authManager.switchUser('${u.id}'); window.appController.initAuthUI(); showToast('Switched user to ${escapeHtml(u.name)}', 'success');">Switch</button>` : ''}
+              ${isAdmin && !isCurrent ? `<button class="btn btn-sm" style="color: #EF4444;" onclick="window.authManager.deleteMember('${u.id}'); window.appController.renderStaffList(); showToast('Staff member removed', 'success');" title="Remove staff account">&times;</button>` : ''}
             </div>
           </div>
         `;
       }).join('');
     }
 
-    switchMember(userId) {
-      window.authManager.switchUser(userId);
-      const user = window.authManager.getCurrentUser();
-      showToast(`Switched active user to ${user.name} (${user.role})`, 'success');
-      this.initAuthUI();
-      this.renderStaffList();
-      closeModal('staff-modal');
+    handleRegisterMemberSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-member-name').value;
+      const username = document.getElementById('new-member-username').value;
+      const password = document.getElementById('new-member-password').value;
+      const role = document.getElementById('new-member-role').value;
+      const designation = document.getElementById('new-member-designation').value;
+
+      const res = window.authManager.registerMember({ name, username, password, role, designation });
+      if (res.success) {
+        showToast(`Staff member registered: ${res.user.name}`, 'success');
+        document.getElementById('new-member-form').reset();
+        this.renderStaffList();
+      } else {
+        showToast(res.message, 'error');
+      }
     }
 
-    // --- CSV / Excel Exports ---
+    // --- CSV & JSON Exports ---
     exportMasterToCSV() {
       const students = store.getStudents();
       const headers = ['Student ID', 'Name', 'Class', 'Roll No', 'Guardian Phone', 'Total Violations', 'Disciplinary Status', 'Score %', 'Last Violation Date'];
@@ -2404,7 +1952,7 @@
         const m = store.getStudentMetrics(s.id);
         return [s.id, s.name, s.classSection, s.rollNo, s.guardianPhone, m.totalViolations, m.status, m.scorePercentage + '%', m.lastViolationDate ? formatDateTime(m.lastViolationDate) : 'Clean'];
       });
-      downloadCSV('Master_Discipline_Sheet.csv', headers, rows);
+      downloadCSV('Hadi_Master_Discipline_Sheet.csv', headers, rows);
       showToast('Master sheet exported to CSV', 'success');
     }
 
@@ -2412,7 +1960,7 @@
       const violations = store.getViolations();
       const headers = ['Violation ID', 'Student Name', 'Class', 'Severity', 'Details', 'Recorded By', 'Timestamp'];
       const rows = violations.map(v => [v.id, v.studentName, v.classSection, v.severity, v.details, v.memberName, formatDateTime(v.timestamp)]);
-      downloadCSV('Violations_Log.csv', headers, rows);
+      downloadCSV('Hadi_Violations_Log.csv', headers, rows);
       showToast('Violations log exported to CSV', 'success');
     }
 
@@ -2432,7 +1980,7 @@
         i.solvedByName || '',
         i.solvedAt ? formatDateTime(i.solvedAt) : ''
       ]);
-      downloadCSV('Collaborative_Issues.csv', headers, rows);
+      downloadCSV('Hadi_Collaborative_Issues.csv', headers, rows);
       showToast('Issues and efforts exported to CSV', 'success');
     }
 
@@ -2440,7 +1988,7 @@
       const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(store.data, null, 2));
       const a = document.createElement('a');
       a.setAttribute('href', dataStr);
-      a.setAttribute('download', `Discipline_Full_Backup_${new Date().toISOString().slice(0, 10)}.json`);
+      a.setAttribute('download', `Hadi_Discipline_Backup_${new Date().toISOString().slice(0, 10)}.json`);
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -2456,28 +2004,20 @@
         try {
           const parsed = JSON.parse(ev.target.result);
           if (parsed && Array.isArray(parsed.students)) {
-            showConfirmModal(
-              'Restore Database Backup',
-              'This will overwrite current live records with the uploaded backup. Continue?',
-              'Confirm Restore',
-              () => {
-                store.data = parsed;
-                store.rebuildIndices();
-                store.save('Database restored from backup');
-                showToast('Database successfully restored!', 'success');
-                closeModal('settings-modal');
-                this.renderAll();
-              }
-            );
+            store.data = parsed;
+            store.rebuildIndices();
+            store.save('Restored full backup from JSON');
+            showToast('Backup restored successfully!', 'success');
+            closeModal('settings-modal');
+            this.renderAll();
           } else {
-            showToast('Invalid backup file structure', 'error');
+            showToast('Invalid backup file format', 'error');
           }
         } catch (err) {
           showToast('Failed to parse JSON file', 'error');
         }
       };
       reader.readAsText(file);
-      e.target.value = '';
     }
 
     handleCSVImport(e) {
@@ -2486,94 +2026,58 @@
 
       const reader = new FileReader();
       reader.onload = (ev) => {
-        try {
-          const text = ev.target.result;
-          const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
-          if (lines.length < 2) {
-            showToast('CSV file is empty or missing headers', 'error');
-            return;
-          }
-
-          let importedCount = 0;
-          for (let i = 1; i < lines.length; i++) {
-            const cols = parseCSVRow(lines[i]);
-            if (cols.length >= 2 && cols[0].trim()) {
-              store.addStudent({
-                name: cols[0].trim(),
-                classSection: cols[1]?.trim() || 'General',
-                rollNo: cols[2]?.trim() || '',
-                guardianPhone: cols[3]?.trim() || '',
-                notes: cols[4]?.trim() || 'Imported via CSV'
-              });
-              importedCount++;
-            }
-          }
-
-          showToast(`Imported ${importedCount} students!`, 'success');
-          closeModal('settings-modal');
-          this.populateStudentSelectDropdowns();
-          this.populateClassDropdowns();
-          this.renderQuickStats();
-        } catch (err) {
-          showToast('CSV import error: ' + err.message, 'error');
+        const text = ev.target.result;
+        const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+        if (lines.length < 2) {
+          showToast('CSV file is empty or missing headers', 'error');
+          return;
         }
+
+        let imported = 0;
+        for (let i = 1; i < lines.length; i++) {
+          const parts = lines[i].split(',').map(p => p.replace(/^"|"$/g, '').trim());
+          if (parts[0]) {
+            store.addStudent({
+              name: parts[0],
+              classSection: parts[1] || 'General',
+              rollNo: parts[2] || '',
+              guardianPhone: parts[3] || ''
+            });
+            imported++;
+          }
+        }
+
+        showToast(`Imported ${imported} students from CSV`, 'success');
+        closeModal('settings-modal');
+        this.renderAll();
       };
       reader.readAsText(file);
-      e.target.value = '';
     }
   }
 
-  // --- CSV Helpers with UTF-8 BOM ---
   function downloadCSV(filename, headers, rows) {
-    const csvContent = '\uFEFF' + [
-      headers.map(h => `"${String(h).replace(/"/g, '""')}"`).join(','),
-      ...rows.map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
-    ].join('\r\n');
+    const csvContent = [headers.map(h => `"${h}"`).join(',')].concat(
+      rows.map(row => row.map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(','))
+    ).join('\r\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.setAttribute('href', URL.createObjectURL(blob));
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.setAttribute('download', filename);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
-  function parseCSVRow(rowText) {
-    const res = [];
-    let insideQuotes = false;
-    let field = '';
-    for (let i = 0; i < rowText.length; i++) {
-      const char = rowText[i];
-      if (char === '"') {
-        if (insideQuotes && rowText[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else {
-          insideQuotes = !insideQuotes;
-        }
-      } else if (char === ',' && !insideQuotes) {
-        res.push(field);
-        field = '';
-      } else {
-        field += char;
-      }
-    }
-    res.push(field);
-    return res;
-  }
-
-  // Service Worker
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./discipline-sw.js?v=v15mobilefix')
-        .catch(err => console.log('SW registration error:', err));
-    });
-  }
-
-  // Global instance export
-  window.appController = new AppController();
+  // Global Exposure
   window.store = store;
   window.openModal = openModal;
   window.closeModal = closeModal;
+  window.showToast = showToast;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    window.appController = new AppController();
+  });
 })();

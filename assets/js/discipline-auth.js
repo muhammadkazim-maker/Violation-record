@@ -7,24 +7,34 @@
 (function () {
   'use strict';
 
-  const AUTH_USERS_KEY = 'discipline_staff_members_v2';
-  const ACTIVE_USER_KEY = 'discipline_active_member_session_v2';
+  const AUTH_USERS_KEY = 'hes_staff_members_v3';
+  const ACTIVE_USER_KEY = 'hes_active_member_session_v3';
 
-  // Clean out any legacy HES keys from localStorage
-  try {
-    localStorage.removeItem('hes_staff_members_v1');
-    localStorage.removeItem('hes_active_member_session');
-  } catch (e) {}
-
-  // Clean default administrator account
+  // Default pre-configured staff accounts for Hadi Education System
   const DEFAULT_STAFF = [
     {
       id: 'usr-admin-1',
-      name: 'Administrator',
+      name: 'Principal Muhammad Ali Hamdani',
       username: 'admin',
       password: 'admin123',
       role: 'Admin',
-      designation: 'System Administrator'
+      designation: 'Principal & Chief Administrator'
+    },
+    {
+      id: 'usr-member-1',
+      name: 'Sir Tariq Mehmood',
+      username: 'tariq',
+      password: 'teacher123',
+      role: 'Member',
+      designation: 'Senior Science Teacher'
+    },
+    {
+      id: 'usr-member-2',
+      name: 'Madam Sadia Parveen',
+      username: 'sadia',
+      password: 'teacher123',
+      role: 'Member',
+      designation: 'Discipline In-charge'
     }
   ];
 
