@@ -9,10 +9,18 @@
   'use strict';
 
   // --- Constants & Keys ---
-  const STORAGE_KEY = 'hes_discipline_tracker_v2';
-  const DB_NAME = 'HES_Discipline_Realtime_DB';
+  const STORAGE_KEY = 'discipline_tracker_store_v2';
+  const DB_NAME = 'Discipline_Tracker_DB_v2';
   const DB_VERSION = 1;
-  const SYNC_CHANNEL_NAME = 'hes_discipline_realtime_sync';
+  const SYNC_CHANNEL_NAME = 'discipline_tracker_realtime_sync_v2';
+
+  // Clear out any legacy HES keys from localStorage so user session starts 100% fresh
+  try {
+    localStorage.removeItem('hes_discipline_tracker_v2');
+    localStorage.removeItem('hes_discipline_tracker_v1');
+    localStorage.removeItem('hes_staff_members_v1');
+    localStorage.removeItem('hes_active_member_session');
+  } catch (e) {}
 
   // Real-time inter-tab & multi-client sync channel
   const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(SYNC_CHANNEL_NAME) : null;
@@ -25,155 +33,13 @@
     Ultra: { points: 75, color: '#881337', badgeClass: 'sev-ultra-badge', label: 'Ultra' }
   };
 
-  // Seed Data: Students, Violations, Collaborative Issues & Efforts
+  // Clean Initial State: Completely empty of mock data, ready for any school or organization
   const INITIAL_SEED = {
-    students: [
-      { id: 'std-1', name: 'Muhammad Hamza', classSection: '10th-A', rollNo: '1001', guardianPhone: '0300-1234567', notes: 'Active in sports', createdAt: '2026-10-01T08:00:00.000Z' },
-      { id: 'std-2', name: 'Ali Raza', classSection: '10th-A', rollNo: '1002', guardianPhone: '0312-9876543', notes: '', createdAt: '2026-10-01T08:00:00.000Z' },
-      { id: 'std-3', name: 'Bilal Ahmed', classSection: '9th-B', rollNo: '9014', guardianPhone: '0333-5551234', notes: 'Needs counseling', createdAt: '2026-10-02T08:00:00.000Z' },
-      { id: 'std-4', name: 'Usman Tariq', classSection: '9th-A', rollNo: '9005', guardianPhone: '0345-4443322', notes: '', createdAt: '2026-10-02T08:00:00.000Z' },
-      { id: 'std-5', name: 'Zainab Fatima', classSection: '10th-B', rollNo: '1025', guardianPhone: '0321-7778899', notes: 'Academic achiever', createdAt: '2026-10-03T08:00:00.000Z' },
-      { id: 'std-6', name: 'Aisha Noor', classSection: '8th-Rose', rollNo: '8011', guardianPhone: '0301-6667788', notes: '', createdAt: '2026-10-03T08:00:00.000Z' },
-      { id: 'std-7', name: 'Daniyal Khan', classSection: '9th-B', rollNo: '9021', guardianPhone: '0308-1112233', notes: '', createdAt: '2026-10-04T08:00:00.000Z' },
-      { id: 'std-8', name: 'Hassan Mujtaba', classSection: '8th-Rose', rollNo: '8004', guardianPhone: '0315-9998877', notes: '', createdAt: '2026-10-05T08:00:00.000Z' },
-      { id: 'std-9', name: 'Maryam Bibi', classSection: '7th-Lily', rollNo: '7015', guardianPhone: '0302-3334455', notes: '', createdAt: '2026-10-06T08:00:00.000Z' },
-      { id: 'std-10', name: 'Zohaib Akhtar', classSection: '10th-A', rollNo: '1012', guardianPhone: '0341-2223344', notes: '', createdAt: '2026-10-07T08:00:00.000Z' }
-    ],
-    violations: [
-      { id: 'v-101', studentId: 'std-3', studentName: 'Bilal Ahmed', classSection: '9th-B', details: 'Fighting in playground during recess and damaging property.', severity: 'Ultra', memberId: 'usr-admin-1', memberName: 'Principal Muhammad Ali Hamdani', memberRole: 'Admin', timestamp: '2026-11-20T11:45:00.000Z' },
-      { id: 'v-102', studentId: 'std-3', studentName: 'Bilal Ahmed', classSection: '9th-B', details: 'Using smartphone inside physics lab despite explicit ban.', severity: 'High', memberId: 'usr-member-1', memberName: 'Mr. Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-18T09:20:00.000Z' },
-      { id: 'v-103', studentId: 'std-1', studentName: 'Muhammad Hamza', classSection: '10th-A', details: 'Repeated disruption in mathematics class and arguing with teacher.', severity: 'Extreme', memberId: 'usr-member-2', memberName: 'Ms. Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-19T10:15:00.000Z' },
-      { id: 'v-104', studentId: 'std-1', studentName: 'Muhammad Hamza', classSection: '10th-A', details: 'Arrived 35 minutes late without parent note.', severity: 'Low', memberId: 'usr-member-1', memberName: 'Mr. Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-17T08:35:00.000Z' },
-      { id: 'v-105', studentId: 'std-7', studentName: 'Daniyal Khan', classSection: '9th-B', details: 'Incomplete homework 3 days consecutively and inappropriate uniform.', severity: 'Medium', memberId: 'usr-member-2', memberName: 'Ms. Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-19T08:40:00.000Z' },
-      { id: 'v-106', studentId: 'std-7', studentName: 'Daniyal Khan', classSection: '9th-B', details: 'Disrespectful language directed at junior student.', severity: 'High', memberId: 'usr-admin-1', memberName: 'Principal Muhammad Ali Hamdani', memberRole: 'Admin', timestamp: '2026-11-16T12:30:00.000Z' },
-      { id: 'v-107', studentId: 'std-4', studentName: 'Usman Tariq', classSection: '9th-A', details: 'Leaving classroom without hall pass.', severity: 'Low', memberId: 'usr-member-1', memberName: 'Mr. Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-15T10:00:00.000Z' },
-      { id: 'v-108', studentId: 'std-10', studentName: 'Zohaib Akhtar', classSection: '10th-A', details: 'Defacing school desk with markers.', severity: 'Medium', memberId: 'usr-member-2', memberName: 'Ms. Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-14T11:10:00.000Z' }
-    ],
-    // Collaborative School Issues Hub (Shared across all staff)
-    issues: [
-      {
-        id: 'iss-1',
-        title: 'Test Issue - Library AC not working',
-        description: 'The library air conditioner in the reading hall stopped functioning.',
-        category: 'Facilities',
-        priority: 'High',
-        status: 'solved',
-        creatorId: 'usr-admin-1',
-        creatorName: 'Principal Muhammad Ali Hamdani',
-        creatorRole: 'Admin',
-        createdAt: new Date().toISOString(),
-        solvedAt: new Date().toISOString(),
-        solvedById: 'usr-admin-1',
-        solvedByName: 'Principal Muhammad Ali Hamdani',
-        solvedByRole: 'Admin',
-        efforts: [
-          {
-            id: 'eff-1',
-            memberId: 'usr-admin-1',
-            memberName: 'Principal Muhammad Ali Hamdani',
-            memberRole: 'Admin',
-            text: 'HVAC technician inspected the indoor unit and replaced the faulty run capacitor. AC running cold now.',
-            timestamp: new Date().toISOString()
-          }
-        ]
-      },
-      {
-        id: 'iss-2',
-        title: '2nd Floor boys washroom hygiene and water tap leakage',
-        description: 'Sanitary conditions need immediate chemical wash and two flush valves require plumbing overhaul before noon.',
-        category: 'Hygiene & Facilities',
-        priority: 'High',
-        status: 'unsolved',
-        creatorId: 'usr-member-2',
-        creatorName: 'Ms. Sadia Parveen',
-        creatorRole: 'Member',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        solvedAt: null,
-        solvedById: null,
-        solvedByName: null,
-        solvedByRole: null,
-        efforts: [
-          {
-            id: 'eff-2',
-            memberId: 'usr-member-2',
-            memberName: 'Ms. Sadia Parveen',
-            memberRole: 'Member',
-            text: 'Notified custodial supervisor and inspected the floor personally. Maintenance vendor called.',
-            timestamp: new Date(Date.now() - 82800000).toISOString()
-          }
-        ]
-      },
-      {
-        id: 'iss-3',
-        title: 'Morning assembly late arrivals by 9th and 10th grade students',
-        description: 'Over 25 students consistently arrive after 8:00 AM, missing the morning national anthem and discipline briefing.',
-        category: 'Punctuality',
-        priority: 'High',
-        status: 'unsolved',
-        creatorId: 'usr-member-1',
-        creatorName: 'Mr. Tariq Mehmood',
-        creatorRole: 'Member',
-        createdAt: new Date(Date.now() - 172800000).toISOString(),
-        solvedAt: null,
-        solvedById: null,
-        solvedByName: null,
-        solvedByRole: null,
-        efforts: [
-          {
-            id: 'eff-3',
-            memberId: 'usr-member-1',
-            memberName: 'Mr. Tariq Mehmood',
-            memberRole: 'Member',
-            text: 'Stationed senior student prefects at main gate with gate register to record exact arrival times.',
-            timestamp: new Date(Date.now() - 169200000).toISOString()
-          },
-          {
-            id: 'eff-4',
-            memberId: 'usr-admin-1',
-            memberName: 'Principal Muhammad Ali Hamdani',
-            memberRole: 'Admin',
-            text: 'Sent automated SMS broadcast to all parents regarding gate closure at 8:05 AM strictly.',
-            timestamp: new Date(Date.now() - 150000000).toISOString()
-          }
-        ]
-      },
-      {
-        id: 'iss-4',
-        title: 'Physics & Computer Lab digital projector bulb replacement',
-        description: 'Lab projector lamp burned out during morning class lecture. Replacement bulb needed.',
-        category: 'Academics & IT',
-        priority: 'Medium',
-        status: 'solved',
-        creatorId: 'usr-admin-1',
-        creatorName: 'Principal Muhammad Ali Hamdani',
-        creatorRole: 'Admin',
-        createdAt: new Date(Date.now() - 345600000).toISOString(),
-        solvedAt: new Date(Date.now() - 259200000).toISOString(),
-        solvedById: 'usr-admin-1',
-        solvedByName: 'Principal Muhammad Ali Hamdani',
-        solvedByRole: 'Admin',
-        efforts: [
-          {
-            id: 'eff-5',
-            memberId: 'usr-member-1',
-            memberName: 'Mr. Tariq Mehmood',
-            memberRole: 'Member',
-            text: 'Tested HDMI cables and confirmed bulb filament failure. Requested procurement approval.',
-            timestamp: new Date(Date.now() - 340000000).toISOString()
-          },
-          {
-            id: 'eff-6',
-            memberId: 'usr-admin-1',
-            memberName: 'Principal Muhammad Ali Hamdani',
-            memberRole: 'Admin',
-            text: 'Authorized new Epson projector lamp from school inventory. Technician installed and tested working.',
-            timestamp: new Date(Date.now() - 260000000).toISOString()
-          }
-        ]
-      }
-    ],
+    students: [],
+    violations: [],
+    issues: [],
     settings: {
-      instituteName: 'Hadi Education System (HES)',
+      instituteName: 'Discipline Tracker',
       staffPin: '1234',
       theme: 'light',
       syncMode: 'Real-Time Shared'
@@ -374,10 +240,6 @@
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed && Array.isArray(parsed.students) && Array.isArray(parsed.issues)) {
-            const hasLibraryAC = parsed.issues.some(i => i.title && i.title.includes('Library AC'));
-            if (!hasLibraryAC) {
-              parsed.issues = JSON.parse(JSON.stringify(INITIAL_SEED.issues));
-            }
             return parsed;
           }
         }
@@ -391,11 +253,6 @@
       try {
         const idbData = await idbStorage.get('tracker_payload');
         if (idbData && Array.isArray(idbData.students)) {
-          const hasLibraryAC = Array.isArray(idbData.issues) && idbData.issues.some(i => i.title && i.title.includes('Library AC'));
-          if (!hasLibraryAC) {
-            idbData.issues = JSON.parse(JSON.stringify(INITIAL_SEED.issues));
-            idbStorage.set('tracker_payload', idbData);
-          }
           this.data = idbData;
           this.rebuildIndices();
           if (window.appController) {
@@ -1001,7 +858,7 @@
 
     initTheme() {
       const settings = store.getSettings();
-      const savedTheme = settings.theme || localStorage.getItem('hes_theme') || 'light';
+      const savedTheme = settings.theme || localStorage.getItem('app_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
       this.updateThemeIcon(savedTheme);
     }
@@ -1010,7 +867,7 @@
       const current = document.documentElement.getAttribute('data-theme') || 'light';
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('hes_theme', next);
+      localStorage.setItem('app_theme', next);
       store.updateSettings({ theme: next });
       this.updateThemeIcon(next);
       showToast(`Switched to ${next} mode`, 'success');
@@ -1027,8 +884,8 @@
     }
 
     initFontSettings() {
-      const savedFont = localStorage.getItem('hes_font_preference') || 'plus-jakarta';
-      const smoothingEnabled = localStorage.getItem('hes_font_smoothing') !== 'false';
+      const savedFont = localStorage.getItem('app_font_preference') || 'plus-jakarta';
+      const smoothingEnabled = localStorage.getItem('app_font_smoothing') !== 'false';
       this.applyFont(savedFont, false);
       this.applySmoothing(smoothingEnabled);
 
@@ -1062,7 +919,7 @@
         'inter': '🎯 Inter (Standard Crisp)',
         'system': '💻 System Native Font'
       };
-      const current = localStorage.getItem('hes_font_preference') || 'plus-jakarta';
+      const current = localStorage.getItem('app_font_preference') || 'plus-jakarta';
       const currentIndex = fonts.indexOf(current);
       const nextFont = fonts[(currentIndex + 1) % fonts.length];
       this.applyFont(nextFont, true);
@@ -1079,7 +936,7 @@
       });
       document.documentElement.classList.add(`font-${targetFont}`);
       document.body.classList.add(`font-${targetFont}`);
-      localStorage.setItem('hes_font_preference', targetFont);
+      localStorage.setItem('app_font_preference', targetFont);
 
       const fontNames = {
         'plus-jakarta': 'Plus Jakarta Sans (Ultra-Smooth)',
@@ -1097,11 +954,11 @@
       if (enabled) {
         document.documentElement.classList.remove('no-smoothing');
         document.body.classList.remove('no-smoothing');
-        localStorage.setItem('hes_font_smoothing', 'true');
+        localStorage.setItem('app_font_smoothing', 'true');
       } else {
         document.documentElement.classList.add('no-smoothing');
         document.body.classList.add('no-smoothing');
-        localStorage.setItem('hes_font_smoothing', 'false');
+        localStorage.setItem('app_font_smoothing', 'false');
       }
     }
 
@@ -1468,7 +1325,7 @@
           appId: ""
         };
 
-        localStorage.setItem('hes_custom_firebase_config', JSON.stringify(config));
+        localStorage.setItem('custom_firebase_config', JSON.stringify(config));
         window.FIREBASE_CONFIG = config;
         showToast('Firebase configuration saved! Live cloud sync connected.', 'success');
         this.initAuthUI();
@@ -1485,12 +1342,12 @@
 
       document.getElementById('reset-demo-data-btn')?.addEventListener('click', () => {
         showConfirmModal(
-          'Reset to Demo Data',
-          'Are you sure you want to reset all records to the original demo data? Any unsaved custom entries will be replaced.',
-          'Reset Now',
+          'Clear All Data',
+          'Are you sure you want to clear all student records, violations, and issues? This will leave the app completely fresh and clean.',
+          'Clear All Data',
           () => {
             store.resetToDemoData();
-            showToast('All records reset to initial demo data', 'success');
+            showToast('All records cleared successfully', 'success');
             closeModal('settings-modal');
             this.renderAll();
           }
@@ -2428,8 +2285,8 @@
       if (printReportEl) {
         printReportEl.innerHTML = `
           <div class="print-header">
-            <h2>HADI EDUCATION SYSTEM (HES)</h2>
-            <p>Pipli Road, Balkasar, District Chakwal, Punjab, Pakistan</p>
+            <h2>${escapeHtml(store.getSettings().instituteName || 'STUDENT DISCIPLINE TRACKER')}</h2>
+            <p>Confidential Disciplinary Record & Behavioral Assessment</p>
             <h3 style="margin-top: 10px; text-decoration: underline;">OFFICIAL STUDENT DISCIPLINARY DOSSIER</h3>
             <p style="font-size: 0.85rem; color: #555;">Generated Automatically on ${new Date().toLocaleDateString('en-US', { dateStyle: 'full' })} at ${new Date().toLocaleTimeString('en-US')}</p>
           </div>
@@ -2547,7 +2404,7 @@
         const m = store.getStudentMetrics(s.id);
         return [s.id, s.name, s.classSection, s.rollNo, s.guardianPhone, m.totalViolations, m.status, m.scorePercentage + '%', m.lastViolationDate ? formatDateTime(m.lastViolationDate) : 'Clean'];
       });
-      downloadCSV('HES_Master_Discipline_Sheet.csv', headers, rows);
+      downloadCSV('Master_Discipline_Sheet.csv', headers, rows);
       showToast('Master sheet exported to CSV', 'success');
     }
 
@@ -2555,7 +2412,7 @@
       const violations = store.getViolations();
       const headers = ['Violation ID', 'Student Name', 'Class', 'Severity', 'Details', 'Recorded By', 'Timestamp'];
       const rows = violations.map(v => [v.id, v.studentName, v.classSection, v.severity, v.details, v.memberName, formatDateTime(v.timestamp)]);
-      downloadCSV('HES_Violations_Log.csv', headers, rows);
+      downloadCSV('Violations_Log.csv', headers, rows);
       showToast('Violations log exported to CSV', 'success');
     }
 
@@ -2575,7 +2432,7 @@
         i.solvedByName || '',
         i.solvedAt ? formatDateTime(i.solvedAt) : ''
       ]);
-      downloadCSV('HES_Collaborative_Issues.csv', headers, rows);
+      downloadCSV('Collaborative_Issues.csv', headers, rows);
       showToast('Issues and efforts exported to CSV', 'success');
     }
 
@@ -2583,7 +2440,7 @@
       const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(store.data, null, 2));
       const a = document.createElement('a');
       a.setAttribute('href', dataStr);
-      a.setAttribute('download', `HES_Discipline_Full_Backup_${new Date().toISOString().slice(0, 10)}.json`);
+      a.setAttribute('download', `Discipline_Full_Backup_${new Date().toISOString().slice(0, 10)}.json`);
       document.body.appendChild(a);
       a.click();
       a.remove();

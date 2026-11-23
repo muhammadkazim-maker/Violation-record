@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#14213D">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>School Discipline Tracker | Hadi Education System</title>
+  <title>School Discipline Tracker</title>
 
   <!-- PWA Manifest & Icons -->
   <link rel="manifest" href="discipline-manifest.json">
@@ -44,10 +44,10 @@
   <header class="app-header">
     <div class="header-container">
       <a href="index.html" class="header-brand" title="Return to Main Portal">
-        <img src="assets/images/logo.png" alt="HES Logo" class="header-logo" onerror="this.src='assets/images/hadi-education-logo.jpg'">
+        <img src="assets/images/logo.png" alt="App Logo" class="header-logo">
         <div class="brand-text">
           <h1>
-            <span>Hadi Education System</span>
+            <span>Discipline Tracker</span>
             <span class="badge">Discipline & Issues</span>
           </h1>
           <p>Collaborative Staff Portal & Behavioral Tracking</p>
@@ -57,8 +57,8 @@
       <div class="header-actions">
         <!-- Active Member Chip (Click to switch user or sign out) -->
         <div id="header-member-chip" class="member-chip" title="Click to view staff profiles or switch user">
-          <div id="header-member-avatar" class="member-avatar admin-avatar">PA</div>
-          <span id="header-member-name" class="member-name-text">Principal Hamdani</span>
+          <div id="header-member-avatar" class="member-avatar admin-avatar">AD</div>
+          <span id="header-member-name" class="member-name-text">Administrator</span>
           <span id="header-member-badge" class="role-badge role-badge-admin">Admin</span>
         </div>
 
@@ -122,7 +122,7 @@
           </div>
           <div class="card-badge-wrap">
             <span class="card-badge">Collaborative</span>
-            <span id="issues-card-live-badge" class="issues-live-badge">2 Unsolved / 1 Solved</span>
+            <span id="issues-card-live-badge" class="issues-live-badge">0 Unsolved / 0 Solved</span>
           </div>
         </div>
         <div class="card-bottom">
@@ -258,7 +258,7 @@
       <form id="add-violation-form">
         <div class="modal-body">
           <div style="background: var(--bg-surface-alt); padding: 0.5rem 0.85rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.82rem; font-weight: 600; color: var(--brand-primary);" id="v-member-author-chip">
-            Logging as: Principal Hamdani (Admin)
+            Logging as: Administrator (Admin)
           </div>
 
           <div class="form-group">
@@ -281,8 +281,9 @@
               <option value="10th-B">10th-B</option>
               <option value="9th-A">9th-A</option>
               <option value="9th-B">9th-B</option>
-              <option value="8th-Rose">8th-Rose</option>
-              <option value="7th-Lily">7th-Lily</option>
+              <option value="8th-A">8th-A</option>
+              <option value="8th-B">8th-B</option>
+              <option value="7th-A">7th-A</option>
               <option value="Custom">+ Custom Class...</option>
             </select>
             <input type="text" id="v-class-custom" placeholder="Type custom class name..." style="display: none; margin-top: 0.5rem;">
@@ -770,10 +771,11 @@
           </div>
         </div>
 
-        <!-- Reset Demo Data -->
+        <!-- Clear All Data -->
         <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: #EF4444; margin-bottom: 0.35rem;">⚠️ Reset Demo Data</h4>
-          <button id="reset-demo-data-btn" class="btn btn-danger btn-sm">Reset to Demo Data</button>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: #EF4444; margin-bottom: 0.35rem;">⚠️ Clear All Data</h4>
+          <p class="form-helper" style="margin-bottom: 0.75rem;">Clear all student records, violations, and issues to start completely fresh.</p>
+          <button id="reset-demo-data-btn" class="btn btn-danger btn-sm">Clear All Data (Reset to Fresh State)</button>
         </div>
       </div>
       <div class="modal-footer">

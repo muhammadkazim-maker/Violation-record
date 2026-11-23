@@ -1,7 +1,7 @@
 {
-  "name": "School Discipline Tracker - Hadi Education System",
+  "name": "School Discipline Tracker",
   "short_name": "Discipline Tracker",
-  "description": "School Discipline & Behavioral Observation Tracker for Teachers and Staff",
+  "description": "Collaborative Student Discipline & Issue Tracking System",
   "start_url": "index.html",
   "scope": "./",
   "display": "standalone",

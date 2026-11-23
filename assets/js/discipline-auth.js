@@ -7,34 +7,24 @@
 (function () {
   'use strict';
 
-  const AUTH_USERS_KEY = 'hes_staff_members_v1';
-  const ACTIVE_USER_KEY = 'hes_active_member_session';
+  const AUTH_USERS_KEY = 'discipline_staff_members_v2';
+  const ACTIVE_USER_KEY = 'discipline_active_member_session_v2';
 
-  // Default pre-seeded staff accounts for immediate testing
+  // Clean out any legacy HES keys from localStorage
+  try {
+    localStorage.removeItem('hes_staff_members_v1');
+    localStorage.removeItem('hes_active_member_session');
+  } catch (e) {}
+
+  // Clean default administrator account
   const DEFAULT_STAFF = [
     {
       id: 'usr-admin-1',
-      name: 'Principal Muhammad Ali Hamdani',
+      name: 'Administrator',
       username: 'admin',
       password: 'admin123',
       role: 'Admin',
-      designation: 'Principal & Chief Administrator'
-    },
-    {
-      id: 'usr-member-1',
-      name: 'Mr. Tariq Mehmood',
-      username: 'tariq',
-      password: 'teacher123',
-      role: 'Member',
-      designation: 'Senior Science Teacher'
-    },
-    {
-      id: 'usr-member-2',
-      name: 'Ms. Sadia Parveen',
-      username: 'sadia',
-      password: 'teacher123',
-      role: 'Member',
-      designation: 'Discipline In-charge'
+      designation: 'System Administrator'
     }
   ];
 

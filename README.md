@@ -238,15 +238,13 @@ The application is engineered as an installable Progressive Web Application (PWA
 
 ---
 
-## 👥 Pre-configured Staff Accounts
+## 👥 Administrator & Staff Accounts
 
 | Full Name | Role | Username | Default Password | Permissions |
 | :--- | :---: | :---: | :---: | :--- |
-| **Principal Muhammad Ali Hamdani** | `Admin` | `admin` | `admin123` | Full access, delete records, resolve any issues |
-| **Sir Tariq Mehmood** | `Member` | `tariq` | `teacher123` | Record violations, add issues & efforts |
-| **Madam Sadia Khan** | `Member` | `sadia` | `teacher123` | Record violations, add issues & efforts |
+| **Administrator** | `Admin` | `admin` | `admin123` | Full access, manage staff, delete records, resolve issues |
 
-*(New staff members can be added anytime through the Staff Switcher modal).*
+*(New staff members and teachers can be added anytime through the Staff Switcher modal).*
 
 ---
 
@@ -256,6 +254,7 @@ The application is engineered as an installable Progressive Web Application (PWA
 Violation-record/
 ├── index.html                   # Primary Web Application Entry Point
 ├── discipline.html              # Dedicated Application Route & Alias
+├── issues.html                  # Standalone Collaborative Issues Hub
 ├── discipline-manifest.json     # PWA Web App Manifest (Name, Icons, Theme)
 ├── manifest.json                # Standard PWA Manifest Alias
 ├── discipline-sw.js             # Service Worker (Network-First Cache & Offline)
@@ -271,30 +270,29 @@ Violation-record/
     │   ├── discipline-auth.js   # Authentication, Staff Switcher & Session State
     │   └── firebase-config.js   # Cloud Firestore & BroadcastChannel Sync Adapter
     └── images/
-        ├── logo.png             # Application & PWA Icon
-        └── hadi-education-logo.jpg # High-Resolution School Seal
+        └── logo.png             # Modern Application & PWA Icon (Balance & Shield)
 ```
 
 ---
 
 ## 🇵🇰 Urdu / RTL Support (اردو رہنمائی)
 
-یہ ایپلیکیشن سکول اور تعلیمی اداروں میں طلبہ کے نظم و ضبط (Discipline) اور ادارہ جاتی مسائل کو حل کرنے کے لیے بنائی گئی ہے۔
+یہ ایپلیکیشن تعلیمی اداروں اور سکولوں میں طلبہ کے نظم و ضبط (Discipline) اور ادارہ جاتی مسائل کو باہمی تعاون سے حل کرنے کے لیے بنائی گئی ہے۔
 
 ### اہم خصوصیات:
-1. **خلاف ورزی کا اندراج (Add Violation)**: طلبہ کی غلطیوں اور غیر سنجیدہ رویے کا فوری اندراج بغیر وقت ٹائپ کیے۔
+1. **خلاف ورزی کا اندراج (Add Violation)**: طلبہ کی غلطیوں اور غیر سنجیدہ رویے کا فوری اندراج خودکار تاریخ اور وقت کے ساتھ۔
 2. **5 درجاتی شدت (Severity)**: کم (Low)، درمیانہ (Medium)، زیادہ (High)، انتہائی (Extreme)، اور الٹرا (Ultra) کے رنگین بٹن۔
-3. **مسائل اور مشترکہ کوششیں (Issues & Efforts)**: سکول کے مسائل درج کریں اور تمام اساتذہ مل کر ان کے حل کے لیے کوششیں (Efforts) شامل کریں۔
-4. **ماسٹر شیٹ اور طلبہ کی پروفائل (Master Sheet & Dossier)**: تمام طلبہ کا ریکارڈ، ڈسپلن میٹر، اور پرنٹ کے لیے تیار تفصیلی پی ڈی ایف رپورٹ۔
-5. **موبائل ایپ (PWA)**: اینڈرائیڈ موبائل پر باآسانی انسٹال ہو جاتی ہے اور انٹرنیٹ کے بغیر بھی کام کرتی ہے۔
+3. **مسائل اور مشترکہ کوششیں (Issues & Efforts)**: ادارے کے مسائل درج کریں اور تمام اساتذہ مل کر ان کے حل کے لیے کوششیں (Efforts) شامل کریں۔
+4. **ماسٹر شیٹ اور طلبہ کی پروفائل (Master Sheet & Dossier)**: تمام طلبہ کا ریکارڈ، ڈسپلن میٹر، اور پرنٹ کے لیے تیار تفصیلی رپورٹ۔
+5. **موبائل ایپ (PWA)**: اینڈرائیڈ موبائل پر باآسانی انسٹال ہو جاتی ہے اور انٹرنیٹ کے بغیر بھی آف لائن کام کرتی ہے۔
 6. **اردو ٹیکسٹ سپورٹ**: اردو نستعلیق اور عربی تحریر کے لیے مکمل سپورٹ۔
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — you are free to use, modify, and distribute it for private or commercial institutional management.
+This project is licensed under the **MIT License** — you are free to use, modify, and distribute it for private or institutional management.
 
 ---
 
-Developed with ❤️ for **Hadi Education System** and modern educational institutions worldwide.
+Developed with ❤️ for educational institutions and behavioral tracking worldwide.

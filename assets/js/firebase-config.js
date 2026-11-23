@@ -29,7 +29,7 @@ window.isFirebaseConfigured = function() {
 
 // Allow loading saved Firebase configuration from LocalStorage
 try {
-  const savedConfig = localStorage.getItem('hes_custom_firebase_config');
+  const savedConfig = localStorage.getItem('custom_firebase_config') || localStorage.getItem('hes_custom_firebase_config');
   if (savedConfig) {
     const parsed = JSON.parse(savedConfig);
     if (parsed && parsed.apiKey) {

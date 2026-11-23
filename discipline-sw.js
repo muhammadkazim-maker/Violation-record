@@ -1,26 +1,27 @@
 /**
- * School Discipline Tracker - Service Worker (v3.0 Multi-User Collaborative)
+ * School Discipline Tracker - Service Worker
  * Enables 100% offline functionality, caching static assets with Network-First strategy
  * for navigation to ensure live updates sync seamlessly.
  */
 
-const CACHE_NAME = 'hes-discipline-v14-mobile';
+const CACHE_NAME = 'discipline-tracker-v1';
 const ASSETS_TO_CACHE = [
+  './index.html',
   './discipline.html',
   './issues.html',
+  './manifest.json',
   './discipline-manifest.json',
-  './assets/css/discipline.css?v=v15mobilefix',
-  './assets/js/firebase-config.js?v=v15mobilefix',
-  './assets/js/discipline-auth.js?v=v15mobilefix',
-  './assets/js/discipline-app.js?v=v15mobilefix',
-  './assets/images/logo.png',
-  './assets/images/hadi-education-logo.jpg'
+  './assets/css/discipline.css?v=v16clean',
+  './assets/js/firebase-config.js?v=v16clean',
+  './assets/js/discipline-auth.js?v=v16clean',
+  './assets/js/discipline-app.js?v=v16clean',
+  './assets/images/logo.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Pre-caching offline discipline tracker assets v5');
+      console.log('[SW] Pre-caching offline discipline tracker assets');
       return cache.addAll(ASSETS_TO_CACHE);
     }).then(() => self.skipWaiting())
   );
@@ -52,6 +53,6 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       })
-      .catch(() => caches.match(event.request).then(res => res || caches.match('./discipline.html')))
+      .catch(() => caches.match(event.request).then(res => res || caches.match('./index.html')))
   );
 });
