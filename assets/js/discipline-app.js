@@ -1256,12 +1256,16 @@
         const clampedScore = Math.max(0, Math.min(100, m.scorePercentage));
         const scaleFactor = (clampedScore / 100).toFixed(3);
         const lastSevBadge = m.lastSeverity ? `<span class="badge-last-sev sev-${m.lastSeverity.toLowerCase()}-badge">Last: ${m.lastSeverity}</span>` : '';
+        const nameParts = (item.student.name || '').trim().split(/\s+/);
+        const initials = (nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : (nameParts[0] ? nameParts[0].slice(0, 2) : 'ST')).toUpperCase();
+        const avatarHue = ((item.student.name || '').charCodeAt(0) * 47) % 360;
 
         return `
           <div class="leader-item" onclick="window.appController.openStudentProfile('${item.student.id}')" role="button" tabindex="0" aria-label="Student record for ${escapeHtml(item.student.name)}">
             <div class="leader-row-top">
               <div class="leader-identity">
                 <div class="leader-rank rank-${rank}">#${rank}</div>
+                <div class="leader-avatar" style="--avatar-hue: ${avatarHue}">${initials}</div>
                 <div class="leader-student-info">
                   <span class="student-name">${escapeHtml(item.student.name)}</span>
                   <span class="student-meta">${escapeHtml(item.student.classSection)} · Roll ${escapeHtml(item.student.rollNo || 'N/A')}</span>

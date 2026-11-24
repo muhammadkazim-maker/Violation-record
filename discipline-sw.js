@@ -4,18 +4,19 @@
  * for navigation to ensure live updates sync seamlessly.
  */
 
-const CACHE_NAME = 'discipline-tracker-v1';
+const CACHE_NAME = 'discipline-tracker-v2';
 const ASSETS_TO_CACHE = [
   './index.html',
   './discipline.html',
   './issues.html',
   './manifest.json',
   './discipline-manifest.json',
-  './assets/css/discipline.css?v=v16clean',
-  './assets/js/firebase-config.js?v=v16clean',
-  './assets/js/discipline-auth.js?v=v16clean',
-  './assets/js/discipline-app.js?v=v16clean',
-  './assets/images/logo.png'
+  './assets/css/discipline.css?v=v17diffdesign',
+  './assets/js/firebase-config.js?v=v17diffdesign',
+  './assets/js/discipline-auth.js?v=v17diffdesign',
+  './assets/js/discipline-app.js?v=v17diffdesign',
+  './assets/images/logo.png',
+  './assets/images/hadi-education-logo.jpg'
 ];
 
 self.addEventListener('install', (event) => {
