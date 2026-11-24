@@ -57,11 +57,11 @@
   --stat-border-unsolved: #E9D5FF;
   --stat-num-unsolved: #581C87;
 
-  /* Bento Action Tiles */
-  --bento-bg-issues: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
-  --bento-border-issues: #BAE6FD;
-  --bento-bg-records: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
-  --bento-border-records: #BBF7D0;
+  /* Bento Action Tiles - Rich & Darker Saturated Gradients */
+  --bento-bg-issues: linear-gradient(135deg, #0284C7 0%, #0369A1 50%, #1D4ED8 100%);
+  --bento-border-issues: rgba(255, 255, 255, 0.25);
+  --bento-bg-records: linear-gradient(135deg, #047857 0%, #059669 50%, #0D9488 100%);
+  --bento-border-records: rgba(255, 255, 255, 0.25);
 
   /* 5 Severity Tiers */
   --sev-low: #10B981;
@@ -781,7 +781,7 @@ img, svg {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
 
-/* Vector Silhouette Watermark for Incident Logging */
+/* Vector Silhouette Watermark for Violation Record */
 .hero-action-card::before,
 #card-add-violation::before {
   content: '';
@@ -791,7 +791,7 @@ img, svg {
   transform: translateY(-50%);
   width: 140px;
   height: 140px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z'/%3E%3Cline x1='12' y1='9' x2='12' y2='13'/%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: contain;
   opacity: 0.10;
@@ -947,44 +947,45 @@ img, svg {
   gap: 1.25rem;
 }
 
-/* Vibrant Bento Card: Campus Issues Hub */
+/* Darker & Vibrant Bento Card: Campus Issues Hub */
 .bento-card-issues,
 #card-issues {
   background: var(--bento-bg-issues);
-  border: 1.5px solid var(--bento-border-issues);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: var(--radius-hero);
-  padding: 1.35rem 1.25rem;
-  box-shadow: var(--shadow-card);
+  padding: 1.4rem 1.35rem;
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.35);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 150px;
+  min-height: 180px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  color: #FFFFFF;
 }
 
-/* Vector Silhouette Watermark for Campus Issues Hub */
+/* Vector Silhouette Watermark for Campus Issues Hub (Building Logo) */
 .bento-card-issues::before,
 #card-issues::before {
   content: '';
   position: absolute;
   right: 12px;
   top: 12px;
-  width: 76px;
-  height: 76px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230284C7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 17 2 2 4-4'/%3E%3Cpath d='m3 7 2 2 4-4'/%3E%3Cpath d='M13 6h8'/%3E%3Cpath d='M13 12h8'/%3E%3Cpath d='M13 18h8'/%3E%3C/svg%3E");
+  width: 82px;
+  height: 82px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='2' width='16' height='20' rx='2'/%3E%3Cpath d='M9 22v-4h6v4'/%3E%3Cpath d='M8 6h.01'/%3E%3Cpath d='M16 6h.01'/%3E%3Cpath d='M12 6h.01'/%3E%3Cpath d='M12 10h.01'/%3E%3Cpath d='M12 14h.01'/%3E%3Cpath d='M16 10h.01'/%3E%3Cpath d='M16 14h.01'/%3E%3Cpath d='M8 10h.01'/%3E%3Cpath d='M8 14h.01'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: contain;
-  opacity: 0.08;
+  opacity: 0.10;
   pointer-events: none;
   transition: all 0.25s ease;
 }
 
 [data-theme="dark"] .bento-card-issues::before,
 [data-theme="dark"] #card-issues::before {
-  opacity: 0.12;
+  opacity: 0.14;
 }
 
 .bento-card-issues:hover::before,
@@ -995,79 +996,77 @@ img, svg {
 
 .bento-card-issues:hover,
 #card-issues:hover {
-  transform: translateY(-2px);
-  border-color: #0284C7;
-  box-shadow: 0 12px 28px -5px rgba(2, 132, 199, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(2, 132, 199, 0.45);
 }
 
 .bento-card-issues .bento-icon-tile,
 #card-issues .action-icon-tile {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--grad-cyan);
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
   color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(8px);
 }
 
-.bento-card-issues .bento-status-pill,
-#card-issues .action-card-pill {
-  font-size: 0.74rem;
-  font-weight: 800;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  background: #0284C7;
+.bento-card-issues .bento-card-title {
   color: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
-}
-
-.bento-card-issues .bento-link-text {
-  font-size: 0.84rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  color: #0284C7;
+  margin-bottom: 0.35rem;
 }
 
-/* Vibrant Bento Card: Master Records Registry */
+.bento-card-issues .bento-card-desc {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+/* Richer & Vibrant Bento Card: Master Records Registry */
 .bento-card-records,
 #card-records {
   background: var(--bento-bg-records);
-  border: 1.5px solid var(--bento-border-records);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: var(--radius-hero);
-  padding: 1.35rem 1.25rem;
-  box-shadow: var(--shadow-card);
+  padding: 1.4rem 1.35rem;
+  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.35);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 150px;
+  min-height: 180px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  color: #FFFFFF;
 }
 
-/* Vector Silhouette Watermark for Disciplinary Records */
+/* Vector Silhouette Watermark for Disciplinary Records (Master Book Logo) */
 .bento-card-records::before,
 #card-records::before {
   content: '';
   position: absolute;
   right: 12px;
   top: 12px;
-  width: 76px;
-  height: 76px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
+  width: 82px;
+  height: 82px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z'/%3E%3Cpath d='M6 6h10'/%3E%3Cpath d='M6 10h10'/%3E%3Cpath d='m9 16 2 2 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: contain;
-  opacity: 0.08;
+  opacity: 0.10;
   pointer-events: none;
   transition: all 0.25s ease;
 }
 
 [data-theme="dark"] .bento-card-records::before,
 [data-theme="dark"] #card-records::before {
-  opacity: 0.12;
+  opacity: 0.14;
 }
 
 .bento-card-records:hover::before,
@@ -1078,39 +1077,156 @@ img, svg {
 
 .bento-card-records:hover,
 #card-records:hover {
-  transform: translateY(-2px);
-  border-color: #059669;
-  box-shadow: 0 12px 28px -5px rgba(5, 150, 105, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(5, 150, 105, 0.45);
 }
 
 .bento-card-records .bento-icon-tile,
 #card-records .action-icon-tile {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--grad-emerald);
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
   color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(8px);
 }
 
-.bento-card-records .bento-status-pill,
-#card-records .action-card-pill {
-  font-size: 0.74rem;
-  font-weight: 800;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  background: #059669;
+.bento-card-records .bento-card-title {
   color: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
 }
 
-.bento-card-records .bento-link-text {
-  font-size: 0.84rem;
+.bento-card-records .bento-card-desc {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+/* White Action Buttons for Bento Tiles (Same as Box 1) */
+.bento-white-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.35rem;
+  background: #FFFFFF;
+  border-radius: var(--radius-control);
+  font-size: 0.9rem;
   font-weight: 800;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.bento-card-issues .bento-white-btn {
+  color: #0284C7;
+}
+
+.bento-card-issues:hover .bento-white-btn {
+  background: #F0F9FF;
+  color: #0369A1;
+  transform: translateX(3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.bento-card-records .bento-white-btn {
   color: #059669;
+}
+
+.bento-card-records:hover .bento-white-btn {
+  background: #F0FDF4;
+  color: #047857;
+  transform: translateX(3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.bento-card-footer {
+  margin-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@media (max-width: 768px) {
+  .bento-white-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+  }
+}
+
+/* Separate Red (Unsolved) and Green (Solved) Filter Buttons in Box 2 */
+.bento-status-buttons-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.issue-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+  min-height: 30px;
+}
+
+.issue-filter-pill.pill-unsolved {
+  background: #DC2626;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.45);
+}
+
+.issue-filter-pill.pill-unsolved:hover {
+  background: #B91C1C;
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6);
+}
+
+.issue-filter-pill.pill-solved {
+  background: #10B981;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.45);
+}
+
+.issue-filter-pill.pill-solved:hover {
+  background: #059669;
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.6);
+}
+
+.pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.pill-dot.dot-red {
+  background-color: #FEF2F2;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+.pill-dot.dot-green {
+  background-color: #ECFDF5;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
 }
 
 .bento-badges-wrap {

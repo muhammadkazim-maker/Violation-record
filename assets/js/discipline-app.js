@@ -1263,6 +1263,8 @@
       const weekViolationsEl = document.getElementById('stat-week-violations');
       const unsolvedIssuesEl = document.getElementById('stat-unsolved-issues');
       const issuesCardBadge = document.getElementById('issues-card-live-badge');
+      const unsolvedCountEl = document.getElementById('issues-card-unsolved-count');
+      const solvedCountEl = document.getElementById('issues-card-solved-count');
 
       if (totalStudentsEl) totalStudentsEl.textContent = stats.totalStudents;
       if (totalViolationsEl) totalViolationsEl.textContent = stats.totalViolations;
@@ -1272,6 +1274,8 @@
       if (issuesCardBadge) {
         issuesCardBadge.textContent = `${stats.unsolvedCount} Unsolved · ${stats.solvedCount} Solved`;
       }
+      if (unsolvedCountEl) unsolvedCountEl.textContent = stats.unsolvedCount;
+      if (solvedCountEl) solvedCountEl.textContent = stats.solvedCount;
 
       // Top 5 Students Leaderboard
       const leaderboardList = document.getElementById('top-5-leaderboard-list');
@@ -1538,6 +1542,14 @@
     openIssuesHubModal() {
       this.renderIssuesHub();
       openModal('issues-modal');
+    }
+
+    openIssuesHubWithFilter(filter) {
+      this.issueStatusFilter = filter || 'all';
+      document.querySelectorAll('.issue-filter-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-status') === this.issueStatusFilter);
+      });
+      this.openIssuesHubModal();
     }
 
     openAddIssueModal() {

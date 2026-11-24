@@ -20,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="assets/css/discipline.css?v=v20diff">
+  <link rel="stylesheet" href="assets/css/discipline.css?v=v21boxes">
 </head>
 <body>
 
@@ -107,25 +107,21 @@
 
     <!-- Command Bento Hub (Hero Action + Twin Intelligence Tiles) -->
     <section class="command-bento-section">
-      <!-- 1. HERO ACTION CARD: RECORD VIOLATION (Crimson Flame Disciplinary Alert) -->
-      <div class="hero-action-card" id="card-add-violation" role="button" tabindex="0" aria-label="Log Student Infraction">
+      <!-- 1. HERO ACTION CARD: VIOLATION RECORD (Crimson Flame Disciplinary Alert) -->
+      <div class="hero-action-card" id="card-add-violation" role="button" tabindex="0" aria-label="Add Student Violation">
         <div class="hero-action-left">
           <div class="hero-icon-tile">
-            <!-- Lucide ShieldAlert -->
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <!-- Lucide TriangleAlert (Violation Warning Logo) -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </div>
           <div class="hero-action-info">
-            <div class="hero-badge-row">
-              <span class="hero-badge-pulse"><span class="pulse-dot"></span> Instant Staff Logging</span>
-              <span class="hero-task-sign">🚨 Incident Report</span>
-            </div>
-            <h2 class="hero-action-title">Log Student Infraction</h2>
+            <h2 class="hero-action-title">Violation Record</h2>
             <p class="hero-action-desc">Immediate incident reporting with student picker, auto timestamp, and 5 severity tiers.</p>
           </div>
         </div>
         <div class="hero-action-right">
           <button type="button" class="hero-trigger-btn" tabindex="-1">
-            <span>+ Log Violation</span>
+            <span>+ Add Violation</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
           </button>
         </div>
@@ -133,16 +129,23 @@
 
       <!-- Twin Intelligence Tiles -->
       <div class="bento-twin-grid">
-        <!-- 2. ISSUES HUB (Operational Azure/Cyan) -->
+        <!-- 2. ISSUES HUB (Darker Ocean Cobalt) -->
         <div class="bento-card bento-card-issues" id="card-issues" role="button" tabindex="0" aria-label="Open Institute Issues Hub">
           <div class="bento-card-header">
             <div class="bento-icon-tile tile-cyan">
-              <!-- Lucide ListChecks -->
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"></path><path d="m3 7 2 2 4-4"></path><path d="M13 6h8"></path><path d="M13 12h8"></path><path d="M13 18h8"></path></svg>
+              <!-- Lucide Building2 with alerts -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
             </div>
-            <div class="bento-badges-wrap">
-              <span class="bento-task-sign sign-cyan">🏛️ Campus Ops</span>
-              <span id="issues-card-live-badge" class="bento-status-pill">2 Unsolved · 2 Solved</span>
+            <!-- Separate Red (Unsolved) and Green (Solved) Buttons -->
+            <div class="bento-status-buttons-row">
+              <button type="button" class="issue-filter-pill pill-unsolved" id="issues-card-unsolved-btn" onclick="event.stopPropagation(); window.appController.openIssuesHubWithFilter('unsolved')" title="View Unsolved Issues">
+                <span class="pill-dot dot-red"></span>
+                <span id="issues-card-unsolved-count">2</span> Unsolved
+              </button>
+              <button type="button" class="issue-filter-pill pill-solved" id="issues-card-solved-btn" onclick="event.stopPropagation(); window.appController.openIssuesHubWithFilter('solved')" title="View Solved Issues">
+                <span class="pill-dot dot-green"></span>
+                <span id="issues-card-solved-count">2</span> Solved
+              </button>
             </div>
           </div>
           <div class="bento-card-body">
@@ -150,7 +153,10 @@
             <p class="bento-card-desc">Collaborative problem tracking, staff effort timeline, and real-time resolution.</p>
           </div>
           <div class="bento-card-footer">
-            <span class="bento-link-text">Open Operations Feed &rarr;</span>
+            <button type="button" class="hero-trigger-btn bento-white-btn" tabindex="-1" onclick="event.stopPropagation(); window.appController.openAddIssueModal()">
+              <span>+ Add Issue</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
           </div>
         </div>
 
@@ -158,12 +164,8 @@
         <div class="bento-card bento-card-records" id="card-records" role="button" tabindex="0" aria-label="Open Master Records Sheet">
           <div class="bento-card-header">
             <div class="bento-icon-tile tile-emerald">
-              <!-- Lucide FolderArchive -->
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg>
-            </div>
-            <div class="bento-badges-wrap">
-              <span class="bento-task-sign sign-emerald">📁 Official Dossiers</span>
-              <span class="bento-status-pill pill-neutral">Master Registry</span>
+              <!-- Lucide BookOpenCheck (Master Ledger & Grand Report) -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path><path d="m9 16 2 2 4-4"></path></svg>
             </div>
           </div>
           <div class="bento-card-body">
@@ -171,7 +173,10 @@
             <p class="bento-card-desc">Full student roster, cumulative severity meters, history logs, and printable dossiers.</p>
           </div>
           <div class="bento-card-footer">
-            <span class="bento-link-text">Browse Student Registry &rarr;</span>
+            <button type="button" class="hero-trigger-btn bento-white-btn" tabindex="-1" onclick="event.stopPropagation(); window.appController.openRecordsModal()">
+              <span>Grand Report</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -958,6 +963,6 @@
   <!-- Scripts: Firebase Config, Auth System & Collaborative Application -->
   <script src="assets/js/firebase-config.js?v=v20diff"></script>
   <script src="assets/js/discipline-auth.js?v=v20diff"></script>
-  <script src="assets/js/discipline-app.js?v=v20diff"></script>
+  <script src="assets/js/discipline-app.js?v=v21boxes"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
  * for navigation to ensure live updates sync seamlessly.
  */
 
-const CACHE_NAME = 'discipline-tracker-v5';
+const CACHE_NAME = 'discipline-tracker-v6';
 const ASSETS_TO_CACHE = [
   './index.html',
   './discipline.html',
