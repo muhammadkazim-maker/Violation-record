@@ -31,26 +31,26 @@
   // Seed Data: 10 Authentic Students, 8 Violations, 4 Collaborative Issues & Efforts
   const INITIAL_SEED = {
     students: [
-      { id: 'std-1', name: 'Muhammad Hamza', classSection: '10th-A', rollNo: '1001', guardianPhone: '0300-1234567', notes: 'Active in sports', createdAt: '2026-10-01T08:00:00.000Z' },
-      { id: 'std-2', name: 'Ali Raza', classSection: '10th-A', rollNo: '1002', guardianPhone: '0312-9876543', notes: '', createdAt: '2026-10-01T08:00:00.000Z' },
-      { id: 'std-3', name: 'Bilal Ahmed', classSection: '9th-B', rollNo: '9014', guardianPhone: '0333-5551234', notes: 'Needs counseling', createdAt: '2026-10-02T08:00:00.000Z' },
-      { id: 'std-4', name: 'Usman Tariq', classSection: '9th-A', rollNo: '9005', guardianPhone: '0345-4443322', notes: '', createdAt: '2026-10-02T08:00:00.000Z' },
-      { id: 'std-5', name: 'Zainab Fatima', classSection: '10th-B', rollNo: '1025', guardianPhone: '0321-7778899', notes: 'Academic achiever', createdAt: '2026-10-03T08:00:00.000Z' },
-      { id: 'std-6', name: 'Aisha Noor', classSection: '8th-A', rollNo: '8011', guardianPhone: '0301-6667788', notes: '', createdAt: '2026-10-03T08:00:00.000Z' },
-      { id: 'std-7', name: 'Daniyal Khan', classSection: '9th-B', rollNo: '9021', guardianPhone: '0308-1112233', notes: '', createdAt: '2026-10-04T08:00:00.000Z' },
-      { id: 'std-8', name: 'Hassan Mujtaba', classSection: '8th-A', rollNo: '8004', guardianPhone: '0315-9998877', notes: '', createdAt: '2026-10-05T08:00:00.000Z' },
-      { id: 'std-9', name: 'Maryam Bibi', classSection: '7th-A', rollNo: '7015', guardianPhone: '0302-3334455', notes: '', createdAt: '2026-10-06T08:00:00.000Z' },
-      { id: 'std-10', name: 'Zohaib Akhtar', classSection: '10th-A', rollNo: '1012', guardianPhone: '0341-2223344', notes: '', createdAt: '2026-10-07T08:00:00.000Z' }
+      { id: 'std-1', name: 'Muhammad Hamza', fatherName: 'Tariq Mehmood', classSection: '10', rollNo: '1001', guardianPhone: '0300-1234567', notes: 'Active in sports', createdAt: '2026-10-01T08:00:00.000Z' },
+      { id: 'std-2', name: 'Ali Raza', fatherName: 'Ghulam Raza', classSection: '10', rollNo: '1002', guardianPhone: '0312-9876543', notes: '', createdAt: '2026-10-01T08:00:00.000Z' },
+      { id: 'std-3', name: 'Bilal Ahmed', fatherName: 'Naseer Ahmed', classSection: '9B', rollNo: '9014', guardianPhone: '0333-5551234', notes: 'Needs counseling', createdAt: '2026-10-02T08:00:00.000Z' },
+      { id: 'std-4', name: 'Usman Tariq', fatherName: 'Tariq Jameel', classSection: '9A', rollNo: '9005', guardianPhone: '0345-4443322', notes: '', createdAt: '2026-10-02T08:00:00.000Z' },
+      { id: 'std-5', name: 'Zainab Fatima', fatherName: 'Dr. Sajid Ali', classSection: '10(arts)', rollNo: '1025', guardianPhone: '0321-7778899', notes: 'Academic achiever', createdAt: '2026-10-03T08:00:00.000Z' },
+      { id: 'std-6', name: 'Aisha Noor', fatherName: 'Noor Muhammad', classSection: '8', rollNo: '8011', guardianPhone: '0301-6667788', notes: '', createdAt: '2026-10-03T08:00:00.000Z' },
+      { id: 'std-7', name: 'Daniyal Khan', fatherName: 'Asadullah Khan', classSection: '9B', rollNo: '9021', guardianPhone: '0308-1112233', notes: '', createdAt: '2026-10-04T08:00:00.000Z' },
+      { id: 'std-8', name: 'Hassan Mujtaba', fatherName: 'Mujtaba Hussain', classSection: '8', rollNo: '8004', guardianPhone: '0315-9998877', notes: '', createdAt: '2026-10-05T08:00:00.000Z' },
+      { id: 'std-9', name: 'Maryam Bibi', fatherName: 'Abdul Rasheed', classSection: '7', rollNo: '7015', guardianPhone: '0302-3334455', notes: '', createdAt: '2026-10-06T08:00:00.000Z' },
+      { id: 'std-10', name: 'Zohaib Akhtar', fatherName: 'Akhtar Abbas', classSection: '10', rollNo: '1012', guardianPhone: '0341-2223344', notes: '', createdAt: '2026-10-07T08:00:00.000Z' }
     ],
     violations: [
-      { id: 'v-101', studentId: 'std-3', studentName: 'Bilal Ahmed', classSection: '9th-B', details: 'Fighting in playground during recess and damaging school property.', severity: 'Ultra', memberId: 'usr-admin-1', memberName: 'Principal Muhammad Ali Hamdani', memberRole: 'Admin', timestamp: '2026-11-20T11:45:00.000Z' },
-      { id: 'v-102', studentId: 'std-3', studentName: 'Bilal Ahmed', classSection: '9th-B', details: 'Using smartphone inside physics lab despite explicit ban.', severity: 'High', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-18T09:20:00.000Z' },
-      { id: 'v-103', studentId: 'std-1', studentName: 'Muhammad Hamza', classSection: '10th-A', details: 'Repeated disruption in mathematics class and arguing with teacher.', severity: 'Extreme', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-19T10:15:00.000Z' },
-      { id: 'v-104', studentId: 'std-1', studentName: 'Muhammad Hamza', classSection: '10th-A', details: 'Arrived 35 minutes late without parent note.', severity: 'Low', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-17T08:35:00.000Z' },
-      { id: 'v-105', studentId: 'std-7', studentName: 'Daniyal Khan', classSection: '9th-B', details: 'Incomplete homework 3 days consecutively and inappropriate uniform.', severity: 'Medium', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-19T08:40:00.000Z' },
-      { id: 'v-106', studentId: 'std-7', studentName: 'Daniyal Khan', classSection: '9th-B', details: 'Disrespectful language directed at junior student.', severity: 'High', memberId: 'usr-admin-1', memberName: 'Principal Muhammad Ali Hamdani', memberRole: 'Admin', timestamp: '2026-11-16T12:30:00.000Z' },
-      { id: 'v-107', studentId: 'std-4', studentName: 'Usman Tariq', classSection: '9th-A', details: 'Leaving classroom without hall pass.', severity: 'Low', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-15T10:00:00.000Z' },
-      { id: 'v-108', studentId: 'std-10', studentName: 'Zohaib Akhtar', classSection: '10th-A', details: 'Defacing school desk with markers.', severity: 'Medium', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-14T11:10:00.000Z' }
+      { id: 'v-101', studentId: 'std-3', studentName: 'Bilal Ahmed', classSection: '9B', details: 'Fighting in playground during recess and damaging school property.', severity: 'Ultra', memberId: 'usr-admin-1', memberName: 'Principal Muhammad Ali Hamdani', memberRole: 'Admin', timestamp: '2026-11-20T11:45:00.000Z' },
+      { id: 'v-102', studentId: 'std-3', studentName: 'Bilal Ahmed', classSection: '9B', details: 'Using smartphone inside physics lab despite explicit ban.', severity: 'High', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-18T09:20:00.000Z' },
+      { id: 'v-103', studentId: 'std-1', studentName: 'Muhammad Hamza', classSection: '10', details: 'Repeated disruption in mathematics class and arguing with teacher.', severity: 'Extreme', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-19T10:15:00.000Z' },
+      { id: 'v-104', studentId: 'std-1', studentName: 'Muhammad Hamza', classSection: '10', details: 'Arrived 35 minutes late without parent note.', severity: 'Low', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-17T08:35:00.000Z' },
+      { id: 'v-105', studentId: 'std-7', studentName: 'Daniyal Khan', classSection: '9B', details: 'Incomplete homework 3 days consecutively and inappropriate uniform.', severity: 'Medium', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-19T08:40:00.000Z' },
+      { id: 'v-106', studentId: 'std-7', studentName: 'Daniyal Khan', classSection: '9B', details: 'Disrespectful language directed at junior student.', severity: 'High', memberId: 'usr-admin-1', memberName: 'Principal Muhammad Ali Hamdani', memberRole: 'Admin', timestamp: '2026-11-16T12:30:00.000Z' },
+      { id: 'v-107', studentId: 'std-4', studentName: 'Usman Tariq', classSection: '9A', details: 'Leaving classroom without hall pass.', severity: 'Low', memberId: 'usr-member-1', memberName: 'Sir Tariq Mehmood', memberRole: 'Member', timestamp: '2026-11-15T10:00:00.000Z' },
+      { id: 'v-108', studentId: 'std-10', studentName: 'Zohaib Akhtar', classSection: '10', details: 'Defacing school desk with markers.', severity: 'Medium', memberId: 'usr-member-2', memberName: 'Madam Sadia Parveen', memberRole: 'Member', timestamp: '2026-11-14T11:10:00.000Z' }
     ],
     issues: [
       {
@@ -401,9 +401,32 @@
       this.violationsByStudent.clear();
       this.metricsCache.clear();
 
+      const defaultFathers = {
+        'std-1': 'Tariq Mehmood',
+        'std-2': 'Ghulam Raza',
+        'std-3': 'Naseer Ahmed',
+        'std-4': 'Tariq Jameel',
+        'std-5': 'Dr. Sajid Ali',
+        'std-6': 'Noor Muhammad',
+        'std-7': 'Asadullah Khan',
+        'std-8': 'Mujtaba Hussain',
+        'std-9': 'Abdul Rasheed',
+        'std-10': 'Akhtar Abbas'
+      };
+
       const students = this.data.students || [];
       for (let i = 0; i < students.length; i++) {
         const s = students[i];
+        if (!s.fatherName) {
+          s.fatherName = defaultFathers[s.id] || (s.name ? 'Father of ' + s.name.split(' ')[0] : 'Guardian');
+        }
+        if (s.classSection === '10th-A') s.classSection = '10';
+        else if (s.classSection === '10th-B') s.classSection = '10(arts)';
+        else if (s.classSection === '9th-A') s.classSection = '9A';
+        else if (s.classSection === '9th-B') s.classSection = '9B';
+        else if (s.classSection === '8th-A' || s.classSection === '8th-B') s.classSection = '8';
+        else if (s.classSection === '7th-A' || s.classSection === '7th-B') s.classSection = '7';
+
         this.studentMap.set(s.id, s);
         this.violationsByStudent.set(s.id, []);
       }
@@ -509,6 +532,7 @@
       const newStudent = {
         id: 'std-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
         name: student.name.trim(),
+        fatherName: (student.fatherName || '').trim(),
         classSection: student.classSection.trim(),
         rollNo: (student.rollNo || '').trim(),
         guardianPhone: (student.guardianPhone || '').trim(),
@@ -1062,21 +1086,45 @@
         });
       });
 
-      // 6. Add Violation Student Select & Inline Add Student
+      // 6. Add Violation Student Name Input, Class Select & Auto-Fill Listeners
+      const vStudentName = document.getElementById('v-student-name');
+      vStudentName?.addEventListener('input', (e) => {
+        this.handleStudentNameInput(e.target.value);
+      });
+      vStudentName?.addEventListener('change', (e) => {
+        this.handleStudentNameInput(e.target.value);
+      });
+
+      const vClassSelect = document.getElementById('v-class-select');
+      vClassSelect?.addEventListener('change', (e) => {
+        this.handleClassSelectChange(e.target.value);
+      });
+
       const vStudentSelect = document.getElementById('v-student-select');
       vStudentSelect?.addEventListener('change', (e) => {
         const studentId = e.target.value;
         const student = store.getStudent(studentId);
         if (student) {
+          if (vStudentName) vStudentName.value = student.name;
+          const fatherInput = document.getElementById('v-father-name');
+          if (fatherInput) fatherInput.value = student.fatherName || '';
+          const phoneInput = document.getElementById('v-parent-phone');
+          if (phoneInput) phoneInput.value = student.guardianPhone || '';
           const classSelect = document.getElementById('v-class-select');
           if (classSelect) classSelect.value = student.classSection;
+          const stdId = document.getElementById('v-student-id');
+          if (stdId) stdId.value = student.id;
+          this.updateAutoDateTime();
         }
       });
 
       document.getElementById('v-inline-add-student')?.addEventListener('click', () => {
         // Save current draft before opening student creation modal
         this.addViolationDraft = {
-          studentId: document.getElementById('v-student-select')?.value || '',
+          studentName: document.getElementById('v-student-name')?.value || '',
+          fatherName: document.getElementById('v-father-name')?.value || '',
+          parentPhone: document.getElementById('v-parent-phone')?.value || '',
+          studentId: document.getElementById('v-student-id')?.value || '',
           classSection: document.getElementById('v-class-select')?.value || '',
           severity: this.selectedSeverity || 'Medium',
           details: document.getElementById('violation-details-input')?.value || ''
@@ -1243,6 +1291,72 @@
         btn.classList.toggle('active', isMatch);
         btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
       });
+      this.updateViolationLevelBox(severity);
+    }
+
+    updateViolationLevelBox(severity) {
+      const box = document.getElementById('v-level-preview-box');
+      if (!box) return;
+
+      const levelsConfig = {
+        Low: {
+          class: 'card-level-low',
+          title: 'Low Infraction',
+          points: '+5 Discipline Demerit Points',
+          tier: 'Tier 1 · Minor Incident',
+          desc: 'Minor non-compliance, single tardiness, or minor classroom distraction. Official verbal reprimand & internal advisory recorded.',
+          action: 'Verbal counseling & internal advisory note logged.'
+        },
+        Medium: {
+          class: 'card-level-medium',
+          title: 'Medium Infraction',
+          points: '+12 Discipline Demerit Points',
+          tier: 'Tier 2 · Standard Incident',
+          desc: 'Moderate disruption, repeated incomplete homework, or uniform dress code non-compliance. Disciplinary note logged to student dossier.',
+          action: 'Parent SMS notification & Disciplinary warning logged.'
+        },
+        High: {
+          class: 'card-level-high',
+          title: 'High Infraction',
+          points: '+25 Discipline Demerit Points',
+          tier: 'Tier 3 · Serious Incident',
+          desc: 'Direct staff disrespect, mobile phone misuse during lecture, truancy, or persistent defiant behavior requiring official detention record.',
+          action: 'Parent summit requested & official detention record.'
+        },
+        Extreme: {
+          class: 'card-level-extreme',
+          title: 'Extreme Infraction',
+          points: '+45 Discipline Demerit Points',
+          tier: 'Tier 4 · Critical Incident',
+          desc: 'Fighting, bullying, property damage, vandalism, or severe aggressive confrontation on school premises.',
+          action: 'Immediate suspension hearing & mandatory parent conference.'
+        },
+        Ultra: {
+          class: 'card-level-ultra',
+          title: 'Ultra Infraction · MAXIMUM SEVERITY',
+          points: '+75 Discipline Demerit Points',
+          tier: 'Tier 5 · Maximum Penalty',
+          desc: 'Critical integrity violation, weapons, illicit substances, or severe institutional sabotage. Maximum disciplinary escalation.',
+          action: 'Immediate referral to Disciplinary Board for expulsion/dismissal.'
+        }
+      };
+
+      const cfg = levelsConfig[severity] || levelsConfig.Medium;
+
+      box.classList.remove('card-level-low', 'card-level-medium', 'card-level-high', 'card-level-extreme', 'card-level-ultra');
+      box.classList.add(cfg.class);
+
+      const titleEl = document.getElementById('v-level-title');
+      const pointsEl = document.getElementById('v-level-points');
+      const tierEl = document.getElementById('v-level-tier');
+      const descEl = document.getElementById('v-level-desc');
+      const actionEl = document.getElementById('v-level-action');
+
+      if (titleEl) titleEl.textContent = cfg.title;
+      if (pointsEl) pointsEl.textContent = cfg.points;
+      if (tierEl) tierEl.textContent = cfg.tier;
+      if (descEl) descEl.textContent = cfg.desc;
+      if (actionEl) actionEl.textContent = cfg.action;
     }
 
     renderAll() {
@@ -1468,67 +1582,226 @@
     populateStudentSelectDropdowns() {
       const students = store.getStudents();
       const sel = document.getElementById('v-student-select');
-      if (!sel) return;
+      const datalist = document.getElementById('students-datalist');
 
-      const currentVal = sel.value;
-      const fragment = document.createDocumentFragment();
-      const defaultOpt = document.createElement('option');
-      defaultOpt.value = '';
-      defaultOpt.textContent = '-- Choose or Search Student --';
-      fragment.appendChild(defaultOpt);
-
-      for (let i = 0; i < students.length; i++) {
-        const s = students[i];
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = `${s.name} (${s.classSection} ${s.rollNo ? '- Roll ' + s.rollNo : ''})`;
-        fragment.appendChild(opt);
+      if (datalist) {
+        datalist.innerHTML = students.map(s => 
+          `<option value="${escapeHtml(s.name)}">${escapeHtml(s.name)} · Class ${escapeHtml(s.classSection)} · Father: ${escapeHtml(s.fatherName || 'N/A')}</option>`
+        ).join('');
       }
 
-      sel.innerHTML = '';
-      sel.appendChild(fragment);
-      if (currentVal) sel.value = currentVal;
+      if (sel) {
+        const currentVal = sel.value;
+        const fragment = document.createDocumentFragment();
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = '-- Choose or Search Student --';
+        fragment.appendChild(defaultOpt);
+
+        for (let i = 0; i < students.length; i++) {
+          const s = students[i];
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = `${s.name} (${s.classSection} - Father: ${s.fatherName || 'N/A'})`;
+          fragment.appendChild(opt);
+        }
+
+        sel.innerHTML = '';
+        sel.appendChild(fragment);
+        if (currentVal) sel.value = currentVal;
+      }
+    }
+
+    handleStudentNameInput(val) {
+      const trimmed = (val || '').trim().toLowerCase();
+      if (!trimmed) return;
+      const students = store.getStudents();
+      // Match exact name first, then startsWith or contains
+      const match = students.find(s => s.name.toLowerCase() === trimmed) 
+                 || students.find(s => s.name.toLowerCase().startsWith(trimmed))
+                 || (trimmed.length >= 3 && students.find(s => s.name.toLowerCase().includes(trimmed)));
+
+      if (match) {
+        const fatherInput = document.getElementById('v-father-name');
+        const phoneInput = document.getElementById('v-parent-phone');
+        const classSelect = document.getElementById('v-class-select');
+        const studentIdInput = document.getElementById('v-student-id');
+        const vStudentSelect = document.getElementById('v-student-select');
+
+        if (studentIdInput) studentIdInput.value = match.id;
+        if (vStudentSelect) vStudentSelect.value = match.id;
+        if (fatherInput && match.fatherName) {
+          fatherInput.value = match.fatherName;
+          this.flashAutoFill(fatherInput, 'vf-father-auto-tag');
+        }
+        if (phoneInput && match.guardianPhone) {
+          phoneInput.value = match.guardianPhone;
+          this.flashAutoFill(phoneInput, 'vf-phone-auto-tag');
+        }
+        if (classSelect && match.classSection) {
+          classSelect.value = match.classSection;
+          this.flashAutoFill(classSelect, 'vf-class-auto-tag');
+        }
+        this.updateAutoDateTime();
+      }
+    }
+
+    handleClassSelectChange(cls) {
+      this.updateAutoDateTime();
+      const studentNameInput = document.getElementById('v-student-name');
+      const sName = studentNameInput ? studentNameInput.value.trim().toLowerCase() : '';
+      if (sName) {
+        const students = store.getStudents();
+        const match = students.find(s => s.name.toLowerCase() === sName && s.classSection === cls)
+                   || students.find(s => s.name.toLowerCase() === sName);
+        if (match) {
+          const fatherInput = document.getElementById('v-father-name');
+          const phoneInput = document.getElementById('v-parent-phone');
+          const studentIdInput = document.getElementById('v-student-id');
+          if (studentIdInput) studentIdInput.value = match.id;
+          if (fatherInput && !fatherInput.value && match.fatherName) {
+            fatherInput.value = match.fatherName;
+            this.flashAutoFill(fatherInput, 'vf-father-auto-tag');
+          }
+          if (phoneInput && !phoneInput.value && match.guardianPhone) {
+            phoneInput.value = match.guardianPhone;
+            this.flashAutoFill(phoneInput, 'vf-phone-auto-tag');
+          }
+        }
+      }
+    }
+
+    updateAutoDateTime() {
+      const dtInput = document.getElementById('v-date-time');
+      if (dtInput) {
+        const now = new Date();
+        const formatted = now.toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        }) + ' at ' + now.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          second: '2-digit',
+          hour12: true 
+        });
+        dtInput.value = formatted;
+      }
+    }
+
+    flashAutoFill(element, tagId) {
+      if (!element) return;
+      element.classList.add('vf-input-highlight');
+      const tag = document.getElementById(tagId);
+      if (tag) tag.classList.add('active');
+      setTimeout(() => {
+        element.classList.remove('vf-input-highlight');
+        if (tag) tag.classList.remove('active');
+      }, 1500);
     }
 
     openAddViolationModal(preselectStudentId) {
-      const dateEl = document.getElementById('v-auto-date-badge');
-      if (dateEl) {
-        dateEl.textContent = new Date().toLocaleDateString('en-US', { dateStyle: 'full' }) + ' at ' + new Date().toLocaleTimeString('en-US');
-      }
+      this.updateAutoDateTime();
       this.populateStudentSelectDropdowns();
+
+      const studentNameInput = document.getElementById('v-student-name');
+      const fatherNameInput = document.getElementById('v-father-name');
+      const parentPhoneInput = document.getElementById('v-parent-phone');
+      const classSelect = document.getElementById('v-class-select');
+      const studentIdInput = document.getElementById('v-student-id');
+      const detailsInput = document.getElementById('violation-details-input');
+
       if (preselectStudentId) {
-        const sel = document.getElementById('v-student-select');
-        if (sel) sel.value = preselectStudentId;
         const student = store.getStudent(preselectStudentId);
         if (student) {
-          const classSelect = document.getElementById('v-class-select');
-          if (classSelect) classSelect.value = student.classSection;
+          if (studentNameInput) studentNameInput.value = student.name;
+          if (fatherNameInput) fatherNameInput.value = student.fatherName || '';
+          if (parentPhoneInput) parentPhoneInput.value = student.guardianPhone || '';
+          if (classSelect) classSelect.value = student.classSection || '';
+          if (studentIdInput) studentIdInput.value = student.id;
+          const sel = document.getElementById('v-student-select');
+          if (sel) sel.value = student.id;
         }
+      } else {
+        if (studentNameInput) studentNameInput.value = '';
+        if (fatherNameInput) fatherNameInput.value = '';
+        if (parentPhoneInput) parentPhoneInput.value = '';
+        if (classSelect) classSelect.value = '';
+        if (studentIdInput) studentIdInput.value = '';
+        if (detailsInput) detailsInput.value = '';
       }
+
       this.selectSeverity(this.selectedSeverity || 'Medium');
       openModal('add-violation-modal');
     }
 
     handleAddViolationSubmit(e) {
       e.preventDefault();
-      const studentId = document.getElementById('v-student-select').value;
-      const classSection = document.getElementById('v-class-select').value;
-      const details = document.getElementById('violation-details-input').value;
+      const studentNameInput = document.getElementById('v-student-name');
+      const fatherNameInput = document.getElementById('v-father-name');
+      const classSelect = document.getElementById('v-class-select');
+      const parentPhoneInput = document.getElementById('v-parent-phone');
+      const detailsInput = document.getElementById('violation-details-input');
+      const studentIdInput = document.getElementById('v-student-id');
 
-      if (!studentId) {
-        showToast('Please select a student', 'error');
+      const studentName = studentNameInput ? studentNameInput.value.trim() : '';
+      const fatherName = fatherNameInput ? fatherNameInput.value.trim() : '';
+      const classSection = classSelect ? classSelect.value : '';
+      const parentPhone = parentPhoneInput ? parentPhoneInput.value.trim() : '';
+      const details = detailsInput ? detailsInput.value.trim() : '';
+
+      if (!studentName) {
+        showToast('Please enter student name', 'error');
+        if (studentNameInput) studentNameInput.focus();
         return;
       }
-      if (!details.trim()) {
-        showToast('Please describe the infraction incident', 'error');
+      if (!classSection) {
+        showToast('Please select class', 'error');
+        if (classSelect) classSelect.focus();
+        return;
+      }
+      if (!details) {
+        showToast('Please describe the violation incident', 'error');
+        if (detailsInput) detailsInput.focus();
         return;
       }
 
       try {
+        let studentId = studentIdInput ? studentIdInput.value : '';
+        let student = studentId ? store.getStudent(studentId) : null;
+
+        // Try to match student by name if studentId wasn't explicitly set
+        if (!student) {
+          student = store.getStudents().find(s => s.name.toLowerCase() === studentName.toLowerCase());
+        }
+
+        if (student) {
+          studentId = student.id;
+          // Update student info if newly provided
+          const updates = {};
+          if (fatherName && (!student.fatherName || student.fatherName !== fatherName)) updates.fatherName = fatherName;
+          if (parentPhone && (!student.guardianPhone || student.guardianPhone !== parentPhone)) updates.guardianPhone = parentPhone;
+          if (classSection && student.classSection !== classSection) updates.classSection = classSection;
+          if (Object.keys(updates).length > 0) {
+            store.updateStudent(student.id, updates);
+          }
+        } else {
+          // Auto-create new student record in registry!
+          student = store.addStudent({
+            name: studentName,
+            fatherName: fatherName || 'Not Specified',
+            classSection: classSection,
+            guardianPhone: parentPhone || '0300-0000000',
+            notes: 'Created via Disciplinary Violation Form'
+          });
+          studentId = student.id;
+        }
+
         const v = store.addViolation({
           studentId,
           classSection,
-          severity: this.selectedSeverity,
+          severity: this.selectedSeverity || 'Medium',
           details
         });
 
@@ -2023,6 +2296,7 @@
     handleAddStudentSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('new-std-name').value;
+      const fatherName = document.getElementById('new-std-father')?.value || '';
       const classSection = document.getElementById('new-std-class').value;
       const rollNo = document.getElementById('new-std-roll').value;
       const guardianPhone = document.getElementById('new-std-phone').value;
@@ -2033,17 +2307,26 @@
         return;
       }
 
-      const newStudent = store.addStudent({ name, classSection, rollNo, guardianPhone, notes });
+      const newStudent = store.addStudent({ name, fatherName, classSection, rollNo, guardianPhone, notes });
       document.getElementById('add-student-form').reset();
       closeModal('add-student-modal');
       this.populateStudentSelectDropdowns();
 
       // If this was an inline student addition during Add Violation, auto-select and restore draft!
       if (this.addViolationDraft) {
-        const sel = document.getElementById('v-student-select');
-        if (sel) sel.value = newStudent.id;
+        const sNameInput = document.getElementById('v-student-name');
+        if (sNameInput) sNameInput.value = newStudent.name;
+        const sFatherInput = document.getElementById('v-father-name');
+        if (sFatherInput) sFatherInput.value = newStudent.fatherName || '';
+        const sPhoneInput = document.getElementById('v-parent-phone');
+        if (sPhoneInput) sPhoneInput.value = newStudent.guardianPhone || '';
         const cls = document.getElementById('v-class-select');
         if (cls) cls.value = newStudent.classSection;
+        const stdId = document.getElementById('v-student-id');
+        if (stdId) stdId.value = newStudent.id;
+        const sel = document.getElementById('v-student-select');
+        if (sel) sel.value = newStudent.id;
+
         if (this.addViolationDraft.details) {
           document.getElementById('violation-details-input').value = this.addViolationDraft.details;
         }
@@ -2064,12 +2347,13 @@
       e.preventDefault();
       const id = document.getElementById('edit-std-id').value;
       const name = document.getElementById('edit-std-name').value;
+      const fatherName = document.getElementById('edit-std-father')?.value || '';
       const classSection = document.getElementById('edit-std-class').value;
       const rollNo = document.getElementById('edit-std-roll').value;
       const guardianPhone = document.getElementById('edit-std-phone').value;
       const notes = document.getElementById('edit-std-notes').value;
 
-      store.updateStudent(id, { name, classSection, rollNo, guardianPhone, notes });
+      store.updateStudent(id, { name, fatherName, classSection, rollNo, guardianPhone, notes });
       showToast('Student profile updated', 'success');
       closeModal('edit-student-modal');
       this.renderAll();

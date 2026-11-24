@@ -1,9 +1,9 @@
 /**
- * School Discipline Tracker - Service Worker (v7 Fast Performance Engine)
+ * School Discipline Tracker - Service Worker (v8 Fast Performance Engine)
  * High-performance Stale-While-Revalidate caching for 0ms instant launch & offline resilience.
  */
 
-const CACHE_NAME = 'discipline-tracker-v7';
+const CACHE_NAME = 'discipline-tracker-v8-violationform';
 const ASSETS_TO_CACHE = [
   './index.html',
   './discipline.html',
@@ -48,7 +48,23 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (!url.protocol.startsWith('http')) return;
 
-  // Stale-While-Revalidate: Instant response from cache + background refresh
+  // For HTML navigations, prefer fresh network first with fast fallback
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '') {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request) || caches.match('./discipline.html'))
+    );
+    return;
+  }
+
+  // Stale-While-Revalidate: Instant response from cache + background refresh for assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
