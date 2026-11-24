@@ -20,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="assets/css/discipline.css?v=v21boxes">
+  <link rel="stylesheet" href="assets/css/discipline.css?v=v22perf">
 </head>
 <body>
 
@@ -961,8 +961,17 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Scripts: Firebase Config, Auth System & Collaborative Application -->
-  <script src="assets/js/firebase-config.js?v=v20diff"></script>
-  <script src="assets/js/discipline-auth.js?v=v20diff"></script>
-  <script src="assets/js/discipline-app.js?v=v21boxes"></script>
+  <script src="assets/js/firebase-config.js?v=v22perf"></script>
+  <script src="assets/js/discipline-auth.js?v=v22perf"></script>
+  <script src="assets/js/discipline-app.js?v=v22perf"></script>
+
+  <!-- Service Worker Registration for Instant Launch & Offline Mode -->
+  <script>
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./discipline-sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

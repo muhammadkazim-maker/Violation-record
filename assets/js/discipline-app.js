@@ -830,14 +830,13 @@
     el.classList.add('active');
     document.body.classList.add('modal-open');
 
-    // Auto-scroll input into view on focus so mobile keyboard never covers fields
-    setTimeout(() => {
-      const input = el.querySelector('input:not([type="hidden"]), select, textarea, button.btn-primary');
-      if (input) {
-        input.focus();
-        input.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      }
-    }, 60);
+    // Focus first input on desktop without smooth-scroll thread contention
+    if (window.innerWidth > 768) {
+      setTimeout(() => {
+        const input = el.querySelector('input:not([type="hidden"]), select, textarea');
+        if (input) input.focus({ preventScroll: true });
+      }, 30);
+    }
   }
 
   function closeModal(modalId) {
@@ -1223,6 +1222,11 @@
       window.addEventListener('click', (e) => {
         if (e.target.classList && e.target.classList.contains('modal-overlay')) {
           closeModal(e.target.id);
+        }
+        const searchBox = document.querySelector('.search-box-wrapper');
+        const dropdown = document.getElementById('search-results-dropdown');
+        if (dropdown && dropdown.classList.contains('active') && searchBox && !searchBox.contains(e.target)) {
+          dropdown.classList.remove('active');
         }
       });
     }
