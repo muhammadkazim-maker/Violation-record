@@ -773,10 +773,19 @@
 
   const store = new CollaborativeStore();
 
-  // --- Severity Meter Helper (Collision-Free Tabular Output) ---
+  // --- Severity Meter Helper (Collision-Free Tabular Output with Radiant Gradients) ---
+  function getGradientBarColor(status, fallbackColor) {
+    if (status === 'ULTRA') return 'linear-gradient(90deg, #E11D48 0%, #881337 100%)';
+    if (status === 'EXTREME') return 'linear-gradient(90deg, #F97316 0%, #EF4444 100%)';
+    if (status === 'HIGH') return 'linear-gradient(90deg, #F59E0B 0%, #F97316 100%)';
+    if (status === 'MEDIUM') return 'linear-gradient(90deg, #10B981 0%, #F59E0B 100%)';
+    return 'linear-gradient(90deg, #34D399 0%, #10B981 100%)';
+  }
+
   function renderSeverityMeter(scorePercentage, barColor, status, statusClass) {
     const clampedScore = Math.max(0, Math.min(100, scorePercentage));
     const scaleFactor = (clampedScore / 100).toFixed(3);
+    const gradColor = getGradientBarColor(status, barColor);
     return `
       <div class="leader-row-meter">
         <div class="leader-meter-label">
@@ -784,7 +793,7 @@
           <span class="meter-percent-num">${clampedScore}%</span>
         </div>
         <div class="meter-track" title="Cumulative Disciplinary Rating: ${clampedScore}%">
-          <div class="meter-fill" style="transform: scaleX(${scaleFactor}); background-color: ${barColor};"></div>
+          <div class="meter-fill" style="transform: scaleX(${scaleFactor}); background: ${gradColor};"></div>
         </div>
       </div>
     `;
@@ -1258,14 +1267,25 @@
         const lastSevBadge = m.lastSeverity ? `<span class="badge-last-sev sev-${m.lastSeverity.toLowerCase()}-badge">Last: ${m.lastSeverity}</span>` : '';
         const nameParts = (item.student.name || '').trim().split(/\s+/);
         const initials = (nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : (nameParts[0] ? nameParts[0].slice(0, 2) : 'ST')).toUpperCase();
-        const avatarHue = ((item.student.name || '').charCodeAt(0) * 47) % 360;
+        
+        // Curated vivid multi-color gradient avatars
+        const avatarGradients = [
+          'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)', // Gold to Crimson Fire
+          'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)', // Electric Indigo to Hot Pink
+          'linear-gradient(135deg, #0284C7 0%, #06B6D4 100%)', // Ocean Blue to Cyan
+          'linear-gradient(135deg, #10B981 0%, #059669 100%)', // Emerald Mint
+          'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)', // Radiant Purple
+          'linear-gradient(135deg, #F97316 0%, #EA580C 100%)'  // Orange Flame
+        ];
+        const avatarGrad = avatarGradients[idx % avatarGradients.length];
+        const gradColor = getGradientBarColor(m.status, m.barColor);
 
         return `
           <div class="leader-item" onclick="window.appController.openStudentProfile('${item.student.id}')" role="button" tabindex="0" aria-label="Student record for ${escapeHtml(item.student.name)}">
             <div class="leader-row-top">
               <div class="leader-identity">
                 <div class="leader-rank rank-${rank}">#${rank}</div>
-                <div class="leader-avatar" style="--avatar-hue: ${avatarHue}">${initials}</div>
+                <div class="leader-avatar" style="background: ${avatarGrad};">${initials}</div>
                 <div class="leader-student-info">
                   <span class="student-name">${escapeHtml(item.student.name)}</span>
                   <span class="student-meta">${escapeHtml(item.student.classSection)} · Roll ${escapeHtml(item.student.rollNo || 'N/A')}</span>
@@ -1282,7 +1302,7 @@
                 <span class="meter-percent-num">${clampedScore}%</span>
               </div>
               <div class="meter-track" title="Cumulative Disciplinary Rating: ${clampedScore}%">
-                <div class="meter-fill" style="transform: scaleX(${scaleFactor}); background-color: ${m.barColor};"></div>
+                <div class="meter-fill" style="transform: scaleX(${scaleFactor}); background: ${gradColor};"></div>
               </div>
             </div>
           </div>
