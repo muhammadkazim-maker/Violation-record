@@ -1053,13 +1053,26 @@
         openModal('add-student-modal');
       });
 
+      // Quick Tag buttons for Add Violation
+      document.querySelectorAll('.quick-tags .tag-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const tag = e.currentTarget.getAttribute('data-tag');
+          const txt = document.getElementById('violation-details-input');
+          if (txt) {
+            if (txt.value && !txt.value.endsWith(' ')) txt.value += ' ';
+            txt.value += `[${tag}] `;
+            txt.focus();
+          }
+        });
+      });
+
       // 7. Forms Submit Handlers
       document.getElementById('add-violation-form')?.addEventListener('submit', (e) => this.handleAddViolationSubmit(e));
       document.getElementById('add-issue-form')?.addEventListener('submit', (e) => this.handleAddIssueSubmit(e));
       document.getElementById('add-effort-form')?.addEventListener('submit', (e) => this.handleAddEffortSubmit(e));
       document.getElementById('add-student-form')?.addEventListener('submit', (e) => this.handleAddStudentSubmit(e));
       document.getElementById('edit-student-form')?.addEventListener('submit', (e) => this.handleEditStudentSubmit(e));
-      document.getElementById('new-member-form')?.addEventListener('submit', (e) => this.handleRegisterMemberSubmit(e));
+      (document.getElementById('new-member-form') || document.getElementById('staff-register-form'))?.addEventListener('submit', (e) => this.handleRegisterMemberSubmit(e));
 
       // 8. Issues Hub Filter & Sort
       document.querySelectorAll('.issue-filter-btn').forEach(btn => {
@@ -1083,13 +1096,15 @@
         this.renderIssuesHub();
       });
 
-      document.getElementById('issue-sort-by')?.addEventListener('change', (e) => {
+      (document.getElementById('issue-sort-by') || document.getElementById('issue-sort-select'))?.addEventListener('change', (e) => {
         this.issueSortBy = e.target.value;
         this.renderIssuesHub();
       });
 
+      document.getElementById('open-add-issue-btn')?.addEventListener('click', () => this.openAddIssueModal());
+
       // 9. Master Records Filter & Pagination
-      document.getElementById('records-search-input')?.addEventListener('input', debounce((e) => {
+      (document.getElementById('records-search-input') || document.getElementById('records-table-search'))?.addEventListener('input', debounce((e) => {
         this.masterSearchTerm = e.target.value.trim().toLowerCase();
         this.recordsPage = 1;
         this.renderMasterTable();
@@ -1101,11 +1116,46 @@
         this.renderMasterTable();
       });
 
-      document.getElementById('records-sort-by')?.addEventListener('change', (e) => {
+      (document.getElementById('records-sort-by') || document.getElementById('records-sort-select'))?.addEventListener('change', (e) => {
         this.masterSortBy = e.target.value;
         this.recordsPage = 1;
         this.renderMasterTable();
       });
+
+      // Student Profile Action Buttons
+      document.getElementById('profile-add-violation-btn')?.addEventListener('click', () => {
+        const id = this.currentProfileStudentId;
+        closeModal('student-profile-modal');
+        this.openAddViolationModal(id);
+      });
+
+      document.getElementById('profile-edit-std-btn')?.addEventListener('click', () => {
+        const id = this.currentProfileStudentId;
+        const student = store.getStudent(id);
+        if (student) {
+          document.getElementById('edit-std-id').value = student.id;
+          document.getElementById('edit-std-name').value = student.name;
+          document.getElementById('edit-std-class').value = student.classSection;
+          document.getElementById('edit-std-roll').value = student.rollNo || '';
+          document.getElementById('edit-std-phone').value = student.guardianPhone || '';
+          document.getElementById('edit-std-notes').value = student.notes || '';
+          openModal('edit-student-modal');
+        }
+      });
+
+      document.getElementById('profile-delete-std-btn')?.addEventListener('click', () => {
+        const id = this.currentProfileStudentId;
+        const student = store.getStudent(id);
+        if (!student) return;
+        showConfirmModal('Delete Student Record', `Are you sure you want to permanently remove ${student.name}? All associated infractions will also be erased.`, 'Delete', () => {
+          store.deleteStudent(id);
+          closeModal('student-profile-modal');
+          showToast(`Student record for ${student.name} deleted`, 'success');
+          this.renderAll();
+        });
+      });
+
+      document.getElementById('print-profile-btn')?.addEventListener('click', () => window.print());
 
       // 10. Data Import / Export Handlers
       document.getElementById('export-records-csv-btn')?.addEventListener('click', () => this.exportMasterToCSV());
@@ -1261,12 +1311,21 @@
       if (currentVal) sel.value = currentVal;
     }
 
-    openAddViolationModal() {
+    openAddViolationModal(preselectStudentId) {
       const dateEl = document.getElementById('v-auto-date-badge');
       if (dateEl) {
         dateEl.textContent = new Date().toLocaleDateString('en-US', { dateStyle: 'full' }) + ' at ' + new Date().toLocaleTimeString('en-US');
       }
       this.populateStudentSelectDropdowns();
+      if (preselectStudentId) {
+        const sel = document.getElementById('v-student-select');
+        if (sel) sel.value = preselectStudentId;
+        const student = store.getStudent(preselectStudentId);
+        if (student) {
+          const classSelect = document.getElementById('v-class-select');
+          if (classSelect) classSelect.value = student.classSection;
+        }
+      }
       this.selectSeverity(this.selectedSeverity || 'Medium');
       openModal('add-violation-modal');
     }
@@ -1433,10 +1492,10 @@
 
     handleAddIssueSubmit(e) {
       e.preventDefault();
-      const title = document.getElementById('issue-title-input').value;
-      const category = document.getElementById('issue-category-select').value;
-      const priority = document.getElementById('issue-priority-select').value;
-      const description = document.getElementById('issue-desc-input').value;
+      const title = (document.getElementById('issue-title-input') || document.getElementById('new-issue-title'))?.value || '';
+      const category = (document.getElementById('issue-category-select') || document.getElementById('new-issue-category'))?.value || 'General Discipline';
+      const priority = (document.getElementById('issue-priority-select') || document.getElementById('new-issue-priority'))?.value || 'Medium';
+      const description = (document.getElementById('issue-desc-input') || document.getElementById('new-issue-desc'))?.value || '';
 
       if (!title.trim() || !description.trim()) {
         showToast('Please provide an issue title and description', 'error');
