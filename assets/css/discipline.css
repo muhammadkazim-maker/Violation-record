@@ -538,6 +538,13 @@ img, svg {
   transform: scale(0.95);
 }
 
+.icon-btn.active-neo {
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  color: #FFFFFF;
+  border-color: #4F46E5;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+}
+
 @media (max-width: 640px) {
   .header-container {
     padding: 0.5rem 0.75rem;
@@ -1590,6 +1597,214 @@ img, svg {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+/* ==========================================================================
+   NEO-MODERN PODIUM LEADERBOARD (Top 3 Showcase)
+   ========================================================================== */
+.podium-deck {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .podium-deck {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+}
+
+.podium-card {
+  background: var(--bg-surface-alt);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-card);
+}
+
+.podium-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Rank 1: Golden Champion */
+.podium-card.podium-rank-1 {
+  background: linear-gradient(145deg, #FFFDF5 0%, #FEF3C7 100%);
+  border: 2px solid #F59E0B;
+  box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.35);
+}
+
+[data-theme="dark"] .podium-card.podium-rank-1 {
+  background: linear-gradient(145deg, #241402 0%, #3B2103 100%);
+  border-color: #F59E0B;
+  box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.25);
+}
+
+/* Rank 2: Silver Elevated */
+.podium-card.podium-rank-2 {
+  background: linear-gradient(145deg, #F8FAFC 0%, #E2E8F0 100%);
+  border: 2px solid #94A3B8;
+  box-shadow: 0 6px 18px -4px rgba(100, 116, 139, 0.25);
+}
+
+[data-theme="dark"] .podium-card.podium-rank-2 {
+  background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%);
+  border-color: #94A3B8;
+  box-shadow: 0 6px 18px -4px rgba(148, 163, 184, 0.2);
+}
+
+/* Rank 3: Bronze Watch */
+.podium-card.podium-rank-3 {
+  background: linear-gradient(145deg, #FFF7ED 0%, #FFEDD5 100%);
+  border: 2px solid #F97316;
+  box-shadow: 0 6px 18px -4px rgba(249, 115, 22, 0.25);
+}
+
+[data-theme="dark"] .podium-card.podium-rank-3 {
+  background: linear-gradient(145deg, #2A1104 0%, #371A08 100%);
+  border-color: #F97316;
+  box-shadow: 0 6px 18px -4px rgba(249, 115, 22, 0.2);
+}
+
+.podium-badge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.podium-rank-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.podium-rank-1 .podium-rank-tag {
+  background: #F59E0B;
+  color: #FFFFFF;
+}
+
+.podium-rank-2 .podium-rank-tag {
+  background: #64748B;
+  color: #FFFFFF;
+}
+
+.podium-rank-3 .podium-rank-tag {
+  background: #EA580C;
+  color: #FFFFFF;
+}
+
+.podium-viol-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: rgba(225, 29, 72, 0.15);
+  color: #E11D48;
+}
+
+.podium-avatar-wrap {
+  position: relative;
+  margin-bottom: 0.65rem;
+}
+
+.podium-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.podium-crown-icon {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.podium-student-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+  line-height: 1.25;
+}
+
+.podium-student-meta {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 0.85rem;
+}
+
+.podium-meter-wrap {
+  width: 100%;
+}
+
+.podium-meter-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.podium-runners-up-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 1.25rem 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.podium-runners-up-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.leaderboard-runners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Subtle dot-grid canvas for Neo-Modern style */
+[data-style="neo"] body {
+  background-color: #F1F5F9;
+  background-image: radial-gradient(#CBD5E1 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+[data-theme="dark"][data-style="neo"] body {
+  background-color: #0B0F19;
+  background-image: radial-gradient(#1E293B 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
 }
 
 /* Leader Item */

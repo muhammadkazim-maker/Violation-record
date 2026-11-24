@@ -896,6 +896,7 @@
 
     init() {
       this.initTheme();
+      this.initStyleMode();
       this.initTextSize();
       this.initAuthUI();
       this.initEventListeners();
@@ -905,6 +906,28 @@
         this.initAuthUI();
         this.renderAll();
       });
+    }
+
+    initStyleMode() {
+      const saved = localStorage.getItem('hes_design_style') || 'neo';
+      document.documentElement.setAttribute('data-style', saved);
+      this.updateStyleButton(saved);
+      document.getElementById('style-toggle-btn')?.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-style') || 'neo';
+        const next = cur === 'neo' ? 'task-pro' : 'neo';
+        document.documentElement.setAttribute('data-style', next);
+        localStorage.setItem('hes_design_style', next);
+        this.updateStyleButton(next);
+        this.renderQuickStats();
+        showToast(`Style: ${next === 'neo' ? 'Neo-Modern (Podium Mode)' : 'Task-Pro (Classic Rows)'}`, 'success');
+      });
+    }
+
+    updateStyleButton(style) {
+      const btn = document.getElementById('style-toggle-btn');
+      if (!btn) return;
+      btn.title = `Switch to ${style === 'neo' ? 'Task-Pro (Classic Rows)' : 'Neo-Modern (Podium Mode)'} Style`;
+      btn.classList.toggle('active-neo', style === 'neo');
     }
 
     initTheme() {
@@ -1256,6 +1279,113 @@
 
       if (stats.top5Students.length === 0) {
         leaderboardList.innerHTML = `<div style="text-align:center; padding: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">No infractions recorded yet. Outstanding institutional discipline!</div>`;
+        return;
+      }
+
+      // Curated vivid multi-color gradient avatars
+      const avatarGradients = [
+        'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)', // Gold to Crimson Fire
+        'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)', // Electric Indigo to Hot Pink
+        'linear-gradient(135deg, #0284C7 0%, #06B6D4 100%)', // Ocean Blue to Cyan
+        'linear-gradient(135deg, #10B981 0%, #059669 100%)', // Emerald Mint
+        'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)', // Radiant Purple
+        'linear-gradient(135deg, #F97316 0%, #EA580C 100%)'  // Orange Flame
+      ];
+
+      const isNeo = (document.documentElement.getAttribute('data-style') || 'neo') === 'neo';
+
+      if (isNeo && stats.top5Students.length > 0) {
+        const top3 = stats.top5Students.slice(0, 3);
+        const runnersUp = stats.top5Students.slice(3);
+
+        const podiumHtml = `
+          <div class="podium-deck">
+            ${top3.map((item, idx) => {
+              const rank = idx + 1;
+              const m = item.metrics;
+              const clampedScore = Math.max(0, Math.min(100, m.scorePercentage));
+              const scaleFactor = (clampedScore / 100).toFixed(3);
+              const gradColor = getGradientBarColor(m.status, m.barColor);
+              const nameParts = (item.student.name || '').trim().split(/\s+/);
+              const initials = (nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : (nameParts[0] ? nameParts[0].slice(0, 2) : 'ST')).toUpperCase();
+              const avatarGrad = avatarGradients[idx % avatarGradients.length];
+
+              let rankSign = rank === 1 ? '👑 1st · Critical' : (rank === 2 ? '🥈 2nd · Elevated' : '🥉 3rd · Watch');
+
+              return `
+                <div class="podium-card podium-rank-${rank}" onclick="window.appController.openStudentProfile('${item.student.id}')" role="button" tabindex="0" aria-label="Student record for ${escapeHtml(item.student.name)}">
+                  <div class="podium-badge-wrap">
+                    <span class="podium-rank-tag">${rankSign}</span>
+                    <span class="podium-viol-pill">${m.totalViolations} Violation${m.totalViolations > 1 ? 's' : ''}</span>
+                  </div>
+                  <div class="podium-avatar-wrap">
+                    <div class="podium-avatar" style="background: ${avatarGrad};">${initials}</div>
+                    <span class="podium-crown-icon">${rank === 1 ? '👑' : (rank === 2 ? '🥈' : '🥉')}</span>
+                  </div>
+                  <div class="podium-student-name">${escapeHtml(item.student.name)}</div>
+                  <div class="podium-student-meta">${escapeHtml(item.student.classSection)} · Roll ${escapeHtml(item.student.rollNo || 'N/A')}</div>
+                  <div class="podium-meter-wrap">
+                    <div class="podium-meter-label">
+                      <span class="meter-status-pill ${m.statusClass}">${m.status}</span>
+                      <span class="meter-percent-num">${clampedScore}%</span>
+                    </div>
+                    <div class="meter-track">
+                      <div class="meter-fill" style="transform: scaleX(${scaleFactor}); background: ${gradColor};"></div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+
+        const runnersUpHtml = runnersUp.length > 0 ? `
+          <div class="podium-runners-up-title">
+            <span>Additional Watchlist Students (Ranks 4-5)</span>
+          </div>
+          <div class="leaderboard-runners-list">
+            ${runnersUp.map((item, rIdx) => {
+              const rank = rIdx + 4;
+              const m = item.metrics;
+              const clampedScore = Math.max(0, Math.min(100, m.scorePercentage));
+              const scaleFactor = (clampedScore / 100).toFixed(3);
+              const gradColor = getGradientBarColor(m.status, m.barColor);
+              const nameParts = (item.student.name || '').trim().split(/\s+/);
+              const initials = (nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : (nameParts[0] ? nameParts[0].slice(0, 2) : 'ST')).toUpperCase();
+              const avatarGrad = avatarGradients[rank % avatarGradients.length];
+
+              return `
+                <div class="leader-item runner-up-item" onclick="window.appController.openStudentProfile('${item.student.id}')" role="button" tabindex="0" aria-label="Student record for ${escapeHtml(item.student.name)}">
+                  <div class="leader-row-top">
+                    <div class="leader-identity">
+                      <div class="leader-rank rank-${rank}">#${rank}</div>
+                      <div class="leader-avatar" style="background: ${avatarGrad};">${initials}</div>
+                      <div class="leader-student-info">
+                        <span class="student-name">${escapeHtml(item.student.name)}</span>
+                        <span class="student-meta">${escapeHtml(item.student.classSection)} · Roll ${escapeHtml(item.student.rollNo || 'N/A')}</span>
+                      </div>
+                    </div>
+                    <div class="leader-badges">
+                      <span class="priority-sign-tag tag-monitored">👁️ Monitored</span>
+                      <span class="violation-count-pill">${m.totalViolations} Violation${m.totalViolations > 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+                  <div class="leader-row-meter">
+                    <div class="leader-meter-label">
+                      <span class="meter-status-pill ${m.statusClass}">${m.status}</span>
+                      <span class="meter-percent-num">${clampedScore}%</span>
+                    </div>
+                    <div class="meter-track">
+                      <div class="meter-fill" style="transform: scaleX(${scaleFactor}); background: ${gradColor};"></div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : '';
+
+        leaderboardList.innerHTML = podiumHtml + runnersUpHtml;
         return;
       }
 

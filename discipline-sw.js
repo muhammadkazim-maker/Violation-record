@@ -4,17 +4,17 @@
  * for navigation to ensure live updates sync seamlessly.
  */
 
-const CACHE_NAME = 'discipline-tracker-v4';
+const CACHE_NAME = 'discipline-tracker-v5';
 const ASSETS_TO_CACHE = [
   './index.html',
   './discipline.html',
   './issues.html',
   './manifest.json',
   './discipline-manifest.json',
-  './assets/css/discipline.css?v=v19super',
-  './assets/js/firebase-config.js?v=v19super',
-  './assets/js/discipline-auth.js?v=v19super',
-  './assets/js/discipline-app.js?v=v19super',
+  './assets/css/discipline.css?v=v20diff',
+  './assets/js/firebase-config.js?v=v20diff',
+  './assets/js/discipline-auth.js?v=v20diff',
+  './assets/js/discipline-app.js?v=v20diff',
   './assets/images/logo.png',
   './assets/images/hadi-education-logo.jpg'
 ];
