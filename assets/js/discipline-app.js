@@ -1267,6 +1267,22 @@
         const lastSevBadge = m.lastSeverity ? `<span class="badge-last-sev sev-${m.lastSeverity.toLowerCase()}-badge">Last: ${m.lastSeverity}</span>` : '';
         const nameParts = (item.student.name || '').trim().split(/\s+/);
         const initials = (nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : (nameParts[0] ? nameParts[0].slice(0, 2) : 'ST')).toUpperCase();
+
+        // Professional Risk Signs & Badges
+        let rankBadgeContent = `#${rank}`;
+        let prioritySignTag = '';
+        if (rank === 1) {
+          rankBadgeContent = `👑 1`;
+          prioritySignTag = `<span class="priority-sign-tag tag-critical">🚨 Critical Risk</span>`;
+        } else if (rank === 2) {
+          rankBadgeContent = `🥈 2`;
+          prioritySignTag = `<span class="priority-sign-tag tag-high">⚡ Elevated</span>`;
+        } else if (rank === 3) {
+          rankBadgeContent = `🥉 3`;
+          prioritySignTag = `<span class="priority-sign-tag tag-moderate">📌 High Watch</span>`;
+        } else {
+          prioritySignTag = `<span class="priority-sign-tag tag-monitored">👁️ Monitored</span>`;
+        }
         
         // Curated vivid multi-color gradient avatars
         const avatarGradients = [
@@ -1284,7 +1300,7 @@
           <div class="leader-item" onclick="window.appController.openStudentProfile('${item.student.id}')" role="button" tabindex="0" aria-label="Student record for ${escapeHtml(item.student.name)}">
             <div class="leader-row-top">
               <div class="leader-identity">
-                <div class="leader-rank rank-${rank}">#${rank}</div>
+                <div class="leader-rank rank-${rank}">${rankBadgeContent}</div>
                 <div class="leader-avatar" style="background: ${avatarGrad};">${initials}</div>
                 <div class="leader-student-info">
                   <span class="student-name">${escapeHtml(item.student.name)}</span>
@@ -1292,6 +1308,7 @@
                 </div>
               </div>
               <div class="leader-badges">
+                ${prioritySignTag}
                 ${lastSevBadge}
                 <span class="violation-count-pill">${m.totalViolations} Violation${m.totalViolations > 1 ? 's' : ''}</span>
               </div>

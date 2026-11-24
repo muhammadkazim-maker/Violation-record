@@ -31,7 +31,7 @@
   --brand-primary-light: #EEF2FF;
   --brand-primary-border: rgba(79, 70, 229, 0.3);
   --brand-gradient: linear-gradient(135deg, #4338CA 0%, #6366F1 50%, #EC4899 100%);
-  --hero-card-gradient: linear-gradient(135deg, #3730A3 0%, #4F46E5 35%, #7C3AED 70%, #EC4899 100%);
+  --hero-card-gradient: linear-gradient(135deg, #7F1D1D 0%, #B91C1C 35%, #DC2626 70%, #EA580C 100%);
 
   /* Bento Action Colors & Gradients */
   --grad-cyan: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
@@ -141,7 +141,7 @@
   --brand-primary-light: rgba(99, 102, 241, 0.18);
   --brand-primary-border: rgba(99, 102, 241, 0.4);
   --brand-gradient: linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #EC4899 100%);
-  --hero-card-gradient: linear-gradient(135deg, #1E1B4B 0%, #2E1065 50%, #4A044E 100%);
+  --hero-card-gradient: linear-gradient(135deg, #450A0A 0%, #7F1D1D 45%, #991B1B 75%, #C2410C 100%);
 
   /* Dark Bento Metric Card Backgrounds */
   --stat-bg-students: linear-gradient(135deg, #1E1B4B 0%, #282463 100%);
@@ -671,6 +671,30 @@ img, svg {
   display: none;
 }
 
+.search-shortcut-badge {
+  position: absolute;
+  right: 0.95rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+@media (max-width: 640px) {
+  .search-shortcut-badge {
+    display: none !important;
+  }
+}
+
 .search-clear-btn:hover {
   color: var(--text-primary);
   background: var(--bg-hover);
@@ -731,14 +755,14 @@ img, svg {
   margin-bottom: 1.75rem;
 }
 
-/* HERO ACTION CARD: Radiant Sunset / Indigo Glow */
+/* HERO ACTION CARD: Vibrant Crimson Disciplinary Incident Alert */
 .hero-action-card,
 #card-add-violation {
   background: var(--hero-card-gradient);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: var(--radius-hero);
   padding: 1.6rem 1.75rem;
-  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35), var(--shadow-glow);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35), 0 0 25px rgba(234, 88, 12, 0.22);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -750,23 +774,34 @@ img, svg {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
 
+/* Vector Silhouette Watermark for Incident Logging */
 .hero-action-card::before,
 #card-add-violation::before {
   content: '';
   position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, rgba(236, 72, 153, 0) 70%);
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 140px;
+  height: 140px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.10;
   pointer-events: none;
+  transition: all 0.3s ease;
 }
 
 .hero-action-card:hover,
 #card-add-violation:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 36px rgba(79, 70, 229, 0.45), 0 0 30px rgba(236, 72, 153, 0.4);
+  box-shadow: 0 16px 36px rgba(220, 38, 38, 0.45), 0 0 35px rgba(234, 88, 12, 0.35);
+}
+
+.hero-action-card:hover::before,
+#card-add-violation:hover::before {
+  opacity: 0.18;
+  transform: translateY(-50%) scale(1.08) rotate(4deg);
 }
 
 .hero-action-card:active,
@@ -800,7 +835,11 @@ img, svg {
 }
 
 .hero-badge-row {
-  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
 }
 
 .hero-badge-pulse {
@@ -813,6 +852,22 @@ img, svg {
   letter-spacing: 0.05em;
   color: #FFFFFF;
   background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(6px);
+}
+
+.hero-task-sign {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.35);
   padding: 2px 9px;
   border-radius: var(--radius-pill);
@@ -846,7 +901,7 @@ img, svg {
 .hero-action-desc,
 #card-add-violation .action-card-desc {
   font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, 0.94);
   line-height: 1.45;
 }
 
@@ -860,7 +915,7 @@ img, svg {
   gap: 0.5rem;
   padding: 0.8rem 1.4rem;
   background: #FFFFFF;
-  color: #4338CA;
+  color: #B91C1C;
   border-radius: var(--radius-control);
   font-size: 0.92rem;
   font-weight: 800;
@@ -872,9 +927,10 @@ img, svg {
 
 .hero-action-card:hover .hero-trigger-btn,
 #card-add-violation:hover .hero-trigger-btn {
-  background: #F8FAFC;
+  background: #FFF1F2;
+  color: #991B1B;
   transform: translateX(3px) scale(1.02);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 20px rgba(185, 28, 28, 0.35);
 }
 
 /* Twin Bento Grid */
@@ -900,6 +956,34 @@ img, svg {
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+}
+
+/* Vector Silhouette Watermark for Campus Issues Hub */
+.bento-card-issues::before,
+#card-issues::before {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 76px;
+  height: 76px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230284C7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 17 2 2 4-4'/%3E%3Cpath d='m3 7 2 2 4-4'/%3E%3Cpath d='M13 6h8'/%3E%3Cpath d='M13 12h8'/%3E%3Cpath d='M13 18h8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.08;
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+[data-theme="dark"] .bento-card-issues::before,
+[data-theme="dark"] #card-issues::before {
+  opacity: 0.12;
+}
+
+.bento-card-issues:hover::before,
+#card-issues:hover::before {
+  opacity: 0.18;
+  transform: scale(1.08) rotate(-4deg);
 }
 
 .bento-card-issues:hover,
@@ -957,6 +1041,34 @@ img, svg {
   overflow: hidden;
 }
 
+/* Vector Silhouette Watermark for Disciplinary Records */
+.bento-card-records::before,
+#card-records::before {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 76px;
+  height: 76px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.08;
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+[data-theme="dark"] .bento-card-records::before,
+[data-theme="dark"] #card-records::before {
+  opacity: 0.12;
+}
+
+.bento-card-records:hover::before,
+#card-records:hover::before {
+  opacity: 0.18;
+  transform: scale(1.08) rotate(4deg);
+}
+
 .bento-card-records:hover,
 #card-records:hover {
   transform: translateY(-2px);
@@ -992,6 +1104,49 @@ img, svg {
   font-size: 0.84rem;
   font-weight: 800;
   color: #059669;
+}
+
+.bento-badges-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.bento-task-sign {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+
+.sign-cyan {
+  background: rgba(2, 132, 199, 0.12);
+  color: #0284C7;
+  border: 1px solid rgba(2, 132, 199, 0.28);
+}
+
+[data-theme="dark"] .sign-cyan {
+  background: rgba(56, 189, 248, 0.16);
+  color: #38BDF8;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.sign-emerald {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.28);
+}
+
+[data-theme="dark"] .sign-emerald {
+  background: rgba(52, 211, 153, 0.16);
+  color: #34D399;
+  border-color: rgba(52, 211, 153, 0.35);
 }
 
 .bento-card-header,
@@ -1145,14 +1300,34 @@ img, svg {
   box-shadow: var(--shadow-lift);
 }
 
-/* 1. Students Card: Electric Indigo */
+/* 1. Students Card: Electric Indigo & Active Roster Sign */
 .stat-box-students {
   background: var(--stat-bg-students);
   border: 1.5px solid var(--stat-border-students);
 }
 
+.stat-box-students::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  width: 52px;
+  height: 52px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233B82F6' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.12;
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
 .stat-box-students:hover {
   box-shadow: 0 10px 25px -4px rgba(79, 70, 229, 0.3);
+}
+
+.stat-box-students:hover::after {
+  opacity: 0.22;
+  transform: scale(1.1) rotate(-4deg);
 }
 
 .stat-box-students .stat-icon-wrap {
@@ -1161,23 +1336,45 @@ img, svg {
   box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
 }
 
-.stat-box-students .stat-badge {
-  background: var(--brand-primary);
+.stat-box-students .stat-badge,
+.badge-students {
+  background: #2563EB;
   color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
 }
 
 .stat-box-students .stat-number {
   color: var(--stat-num-students);
 }
 
-/* 2. Violations Card: Fiery Rose/Crimson */
+/* 2. Violations Card: Fiery Crimson Incident Sign */
 .stat-box-violations {
   background: var(--stat-bg-violations);
   border: 1.5px solid var(--stat-border-violations);
 }
 
+.stat-box-violations::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  width: 52px;
+  height: 52px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E11D48' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z'/%3E%3Cline x1='12' y1='9' x2='12' y2='13'/%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.12;
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
 .stat-box-violations:hover {
   box-shadow: 0 10px 25px -4px rgba(225, 29, 72, 0.3);
+}
+
+.stat-box-violations:hover::after {
+  opacity: 0.22;
+  transform: scale(1.1) rotate(4deg);
 }
 
 .stat-box-violations .stat-icon-wrap {
@@ -1186,23 +1383,45 @@ img, svg {
   box-shadow: 0 4px 10px rgba(225, 29, 72, 0.35);
 }
 
-.stat-box-violations .stat-badge {
+.stat-box-violations .stat-badge,
+.badge-violations {
   background: #E11D48;
   color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.3);
 }
 
 .stat-box-violations .stat-number {
   color: var(--stat-num-violations);
 }
 
-/* 3. Weekly Count Card: Warm Sunset Amber */
+/* 3. Weekly Count Card: Warm Sunset Amber Velocity Sign */
 .stat-box-week {
   background: var(--stat-bg-week);
   border: 1.5px solid var(--stat-border-week);
 }
 
+.stat-box-week::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  width: 52px;
+  height: 52px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D97706' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='4' rx='2' ry='2'/%3E%3Cline x1='16' x2='16' y1='2' y2='6'/%3E%3Cline x1='8' x2='8' y1='2' y2='6'/%3E%3Cline x1='3' x2='21' y1='10' y2='10'/%3E%3Cpath d='M8 14h.01'/%3E%3Cpath d='M12 14h.01'/%3E%3Cpath d='M16 14h.01'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.12;
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
 .stat-box-week:hover {
   box-shadow: 0 10px 25px -4px rgba(217, 119, 6, 0.3);
+}
+
+.stat-box-week:hover::after {
+  opacity: 0.22;
+  transform: scale(1.1) rotate(-4deg);
 }
 
 .stat-box-week .stat-icon-wrap {
@@ -1211,23 +1430,45 @@ img, svg {
   box-shadow: 0 4px 10px rgba(217, 119, 6, 0.35);
 }
 
-.stat-box-week .stat-badge {
+.stat-box-week .stat-badge,
+.badge-week {
   background: #D97706;
   color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
 }
 
 .stat-box-week .stat-number {
   color: var(--stat-num-week);
 }
 
-/* 4. Unsolved Issues Card: Vivid Royal Purple */
+/* 4. Unsolved Issues Card: Royal Purple Action-Needed Sign */
 .stat-box-unsolved {
   background: var(--stat-bg-unsolved);
   border: 1.5px solid var(--stat-border-unsolved);
 }
 
+.stat-box-unsolved::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  width: 52px;
+  height: 52px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239333EA' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.12;
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
 .stat-box-unsolved:hover {
   box-shadow: 0 10px 25px -4px rgba(147, 51, 234, 0.3);
+}
+
+.stat-box-unsolved:hover::after {
+  opacity: 0.22;
+  transform: scale(1.1) rotate(4deg);
 }
 
 .stat-box-unsolved .stat-icon-wrap {
@@ -1236,9 +1477,11 @@ img, svg {
   box-shadow: 0 4px 10px rgba(147, 51, 234, 0.35);
 }
 
-.stat-box-unsolved .stat-badge {
+.stat-box-unsolved .stat-badge,
+.badge-unsolved {
   background: #9333EA;
   color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(147, 51, 234, 0.3);
 }
 
 .stat-box-unsolved .stat-number {
@@ -1264,10 +1507,13 @@ img, svg {
 .stat-badge {
   font-size: 0.68rem;
   font-weight: 800;
-  padding: 3px 8px;
+  padding: 3px 9px;
   border-radius: var(--radius-pill);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .stat-info {
@@ -1521,6 +1767,67 @@ img, svg {
     font-size: 0.68rem !important;
     padding: 1px 6px !important;
   }
+}
+
+.priority-sign-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.tag-critical {
+  background: rgba(225, 29, 72, 0.14);
+  color: #E11D48;
+  border: 1px solid rgba(225, 29, 72, 0.35);
+}
+
+.tag-high {
+  background: rgba(249, 115, 22, 0.14);
+  color: #EA580C;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.tag-moderate {
+  background: rgba(245, 158, 11, 0.14);
+  color: #D97706;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.tag-monitored {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4F46E5;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+[data-theme="dark"] .tag-critical {
+  background: rgba(244, 63, 94, 0.2);
+  color: #FB7185;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+[data-theme="dark"] .tag-high {
+  background: rgba(251, 146, 60, 0.2);
+  color: #FB923C;
+  border-color: rgba(251, 146, 60, 0.4);
+}
+
+[data-theme="dark"] .tag-moderate {
+  background: rgba(251, 191, 36, 0.2);
+  color: #FCD34D;
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+[data-theme="dark"] .tag-monitored {
+  background: rgba(129, 140, 248, 0.2);
+  color: #A5B4FC;
+  border-color: rgba(129, 140, 248, 0.4);
 }
 
 .badge-last-sev {
