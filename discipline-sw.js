@@ -3,7 +3,7 @@
  * High-performance Stale-While-Revalidate caching for 0ms instant launch & offline resilience.
  */
 
-const CACHE_NAME = 'discipline-tracker-v19-hidestats';
+const CACHE_NAME = 'discipline-tracker-v25-clean';
 const ASSETS_TO_CACHE = [
   './index.html',
   './discipline.html',
@@ -19,12 +19,13 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE).catch(err => {
         console.warn('[SW] Pre-cache partial warning:', err);
       });
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -47,6 +48,11 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (!url.protocol.startsWith('http')) return;
+
+  // Cache busting query parameter: bypass SW cache completely for fresh updates
+  if (url.search && url.search.includes('v=')) {
+    return;
+  }
 
   // For HTML navigations, prefer fresh network first with fast fallback
   if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '') {

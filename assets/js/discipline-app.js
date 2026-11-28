@@ -904,6 +904,13 @@
       this.issueSearchTerm = '';
       this.currentViewingIssueId = null;
 
+      this.violationsSearchTerm = '';
+      this.violationsSeverityFilter = 'all';
+      this.violationsClassFilter = 'all';
+      this.violationsSortBy = 'newest';
+      this.violationsPage = 1;
+      this.violationsPageSize = 10;
+
       this.masterSearchTerm = '';
       this.masterClassFilter = 'all';
       this.masterSortBy = 'violations-desc';
@@ -1030,10 +1037,87 @@
       document.getElementById('header-member-chip')?.addEventListener('click', () => openModal('staff-modal'));
       document.getElementById('settings-btn')?.addEventListener('click', () => openModal('settings-modal'));
 
-      // 2. Center Action Cards
-      document.getElementById('card-add-violation')?.addEventListener('click', () => this.openAddViolationModal());
-      document.getElementById('card-issues')?.addEventListener('click', () => this.openIssuesHubModal());
-      document.getElementById('card-records')?.addEventListener('click', () => this.openRecordsModal());
+      // 2. Center Action Cards with Smart Click Routing
+      // Violation Record Card: tapping "+ Add Violation" opens form, tapping box opens full records log
+      const cardViolation = document.getElementById('card-add-violation');
+      if (cardViolation) {
+        cardViolation.onclick = (e) => {
+          if (e.target.closest('#btn-hero-add-violation') || e.target.closest('.hero-trigger-btn')) return;
+          this.openAllViolationsModal();
+        };
+      }
+      const btnHeroAdd = document.getElementById('btn-hero-add-violation');
+      if (btnHeroAdd) {
+        btnHeroAdd.onclick = (e) => {
+          e.stopPropagation();
+          this.openAddViolationModal();
+        };
+      }
+
+      // Issues Card: tapping "+ Add Issue" opens form, tapping box opens issues hub
+      const cardIssues = document.getElementById('card-issues');
+      if (cardIssues) {
+        cardIssues.onclick = (e) => {
+          if (e.target.closest('#btn-card-add-issue') || e.target.closest('.hero-trigger-btn') || e.target.closest('.issue-filter-pill')) return;
+          this.openIssuesHubModal();
+        };
+      }
+      const btnCardIssue = document.getElementById('btn-card-add-issue');
+      if (btnCardIssue) {
+        btnCardIssue.onclick = (e) => {
+          e.stopPropagation();
+          this.openAddIssueModal();
+        };
+      }
+
+      // Master Records Card: tapping opens master sheet
+      const cardRecords = document.getElementById('card-records');
+      if (cardRecords) {
+        cardRecords.onclick = () => this.openRecordsModal();
+      }
+      const btnCardRecords = document.getElementById('btn-card-records');
+      if (btnCardRecords) {
+        btnCardRecords.onclick = (e) => {
+          e.stopPropagation();
+          this.openRecordsModal();
+        };
+      }
+
+      // Violations Log Modal Listeners
+      const vSearch = document.getElementById('violations-search-input');
+      if (vSearch) {
+        vSearch.addEventListener('input', debounce((e) => {
+          this.violationsSearchTerm = e.target.value.toLowerCase().trim();
+          this.violationsPage = 1;
+          this.renderAllViolationsTable();
+        }, 250));
+      }
+
+      document.getElementById('violations-class-filter')?.addEventListener('change', (e) => {
+        this.violationsClassFilter = e.target.value;
+        this.violationsPage = 1;
+        this.renderAllViolationsTable();
+      });
+
+      document.getElementById('violations-sort-by')?.addEventListener('change', (e) => {
+        this.violationsSortBy = e.target.value;
+        this.renderAllViolationsTable();
+      });
+
+      document.getElementById('export-violations-csv-btn')?.addEventListener('click', () => {
+        this.exportViolationsToCSV();
+      });
+
+      // Filter chips in violations modal
+      document.querySelectorAll('.violations-summary-chips .violation-filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.violations-summary-chips .violation-filter-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          this.violationsSeverityFilter = chip.getAttribute('data-severity') || 'all';
+          this.violationsPage = 1;
+          this.renderAllViolationsTable();
+        });
+      });
 
       // 3. Mobile Bottom Navigation
       document.getElementById('nav-home')?.addEventListener('click', () => {
@@ -1426,6 +1510,9 @@
       this.populateStudentSelectDropdowns();
       this.renderIssuesHub();
       this.renderMasterTable();
+      if (document.getElementById('violations-modal')?.classList.contains('active')) {
+        this.renderAllViolationsTable();
+      }
       if (this.currentViewingIssueId) {
         this.renderIssueDetail(this.currentViewingIssueId);
       }
@@ -2158,6 +2245,178 @@
       showToast('Issue reopened for follow-up', 'success');
       this.renderIssueDetail(issueId);
       this.renderIssuesHub();
+    }
+
+    // --- All Violations Log / Records View ---
+    openAllViolationsModal(filter = {}) {
+      if (filter.severity) this.violationsSeverityFilter = filter.severity;
+      if (filter.classSection) this.violationsClassFilter = filter.classSection;
+      this.violationsPage = 1;
+      this.renderAllViolationsTable();
+      openModal('violations-modal');
+    }
+
+    renderAllViolationsTable() {
+      const tbody = document.getElementById('all-violations-table-body');
+      const countHeader = document.getElementById('violations-header-count-text');
+      const footerCount = document.getElementById('violations-footer-count');
+      const paginationEl = document.getElementById('all-violations-pagination');
+      if (!tbody) return;
+
+      const violations = store.getViolations();
+      const user = window.authManager.getCurrentUser();
+
+      // Update severity summary count chips
+      const counts = { all: violations.length, Low: 0, Medium: 0, High: 0, Extreme: 0, Ultra: 0 };
+      for (let i = 0; i < violations.length; i++) {
+        const v = violations[i];
+        if (counts[v.severity] !== undefined) counts[v.severity]++;
+      }
+      const sevKeys = ['all', 'low', 'medium', 'high', 'extreme', 'ultra'];
+      for (let k = 0; k < sevKeys.length; k++) {
+        const key = sevKeys[k];
+        const el = document.getElementById(`v-count-${key}`);
+        if (el) {
+          const countVal = key === 'all' ? counts.all : (counts[key.charAt(0).toUpperCase() + key.slice(1)] || 0);
+          el.textContent = countVal;
+        }
+      }
+
+      // Filter
+      let filtered = [];
+      for (let i = 0; i < violations.length; i++) {
+        const v = violations[i];
+        if (this.violationsSeverityFilter !== 'all' && v.severity !== this.violationsSeverityFilter) {
+          continue;
+        }
+        const s = store.getStudent(v.studentId);
+        const vClass = (v.classSection || s?.classSection || '').toLowerCase();
+        if (this.violationsClassFilter !== 'all' && vClass !== this.violationsClassFilter.toLowerCase()) {
+          continue;
+        }
+        if (this.violationsSearchTerm) {
+          const q = this.violationsSearchTerm.toLowerCase();
+          const studentName = (v.studentName || s?.name || '').toLowerCase();
+          const fatherName = (s?.fatherName || '').toLowerCase();
+          const rollNo = (s?.rollNo || '').toLowerCase();
+          const details = (v.details || '').toLowerCase();
+          const member = (v.memberName || '').toLowerCase();
+          if (!studentName.includes(q) && !fatherName.includes(q) && !rollNo.includes(q) && !vClass.includes(q) && !details.includes(q) && !member.includes(q)) {
+            continue;
+          }
+        }
+        filtered.push({ v, s });
+      }
+
+      // Sort
+      if (this.violationsSortBy === 'newest') {
+        filtered.sort((a, b) => new Date(b.v.timestamp) - new Date(a.v.timestamp));
+      } else if (this.violationsSortBy === 'oldest') {
+        filtered.sort((a, b) => new Date(a.v.timestamp) - new Date(b.v.timestamp));
+      } else if (this.violationsSortBy === 'severity-desc') {
+        const sevOrder = { Ultra: 5, Extreme: 4, High: 3, Medium: 2, Low: 1 };
+        filtered.sort((a, b) => (sevOrder[b.v.severity] || 0) - (sevOrder[a.v.severity] || 0) || new Date(b.v.timestamp) - new Date(a.v.timestamp));
+      }
+
+      if (countHeader) {
+        countHeader.textContent = `${filtered.length} of ${violations.length} total recorded citations`;
+      }
+      if (footerCount) {
+        footerCount.textContent = `Showing ${filtered.length} of ${violations.length} total incidents`;
+      }
+
+      // Pagination
+      const totalItems = filtered.length;
+      const totalPages = Math.ceil(totalItems / this.violationsPageSize) || 1;
+      if (this.violationsPage > totalPages) this.violationsPage = totalPages;
+      if (this.violationsPage < 1) this.violationsPage = 1;
+
+      const startIndex = (this.violationsPage - 1) * this.violationsPageSize;
+      const paginated = filtered.slice(startIndex, startIndex + this.violationsPageSize);
+
+      if (paginated.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted); font-size: 0.9rem;">No violation records match the selected filters.</td></tr>`;
+        if (paginationEl) paginationEl.innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = paginated.map(item => {
+        const v = item.v;
+        const s = item.s;
+        const canDelete = user && user.role === 'Admin';
+        const studentName = v.studentName || s?.name || 'Unknown Student';
+        const fatherName = s?.fatherName ? `S/O ${s.fatherName}` : '';
+        const rollNo = s?.rollNo ? `Roll: ${s.rollNo}` : '';
+        const subMeta = [fatherName, rollNo].filter(Boolean).join(' · ');
+        const classSec = v.classSection || s?.classSection || '-';
+        const sevLower = (v.severity || 'medium').toLowerCase();
+
+        return `
+          <tr>
+            <td>
+              <div style="font-weight: 700; color: var(--text-primary); cursor: pointer;" onclick="closeModal('violations-modal'); window.appController.openStudentProfile('${v.studentId}')" title="Click to view dossier">
+                ${escapeHtml(studentName)}
+              </div>
+              ${subMeta ? `<div style="font-size: 0.77rem; color: var(--text-muted); margin-top: 1px;">${escapeHtml(subMeta)}</div>` : ''}
+            </td>
+            <td>
+              <span class="role-badge role-badge-member" style="font-size: 0.76rem; padding: 2px 7px;">${escapeHtml(classSec)}</span>
+            </td>
+            <td>
+              <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">
+                ${formatDateTime(v.timestamp)}
+              </div>
+            </td>
+            <td>
+              <div style="font-size: 0.86rem; color: var(--text-primary); line-height: 1.45; word-break: break-word; max-width: 320px;" dir="auto">
+                ${escapeHtml(v.details)}
+              </div>
+            </td>
+            <td>
+              <span class="meter-status-pill sev-${sevLower}-badge" style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase;">
+                ${escapeHtml(v.severity)}
+              </span>
+            </td>
+            <td>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">
+                ${escapeHtml(v.memberName || 'Staff')}
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); opacity: 0.8;">
+                (${escapeHtml(v.memberRole || 'Member')})
+              </div>
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <button type="button" class="btn btn-secondary btn-xs" onclick="closeModal('violations-modal'); window.appController.openStudentProfile('${v.studentId}')" title="View Dossier" style="padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; margin-right: 4px; cursor: pointer;">
+                Dossier
+              </button>
+              ${canDelete ? `
+                <button type="button" class="btn btn-outline-danger btn-xs" onclick="window.appController.handleDeleteViolation('${v.id}')" title="Admin delete record" style="padding: 3px 7px; font-size: 0.75rem; border-radius: 4px; border: 1px solid #FCA5A5; color: #DC2626; background: #FEF2F2; cursor: pointer;">
+                  Delete
+                </button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render pagination if totalPages > 1
+      if (paginationEl) {
+        if (totalPages <= 1) {
+          paginationEl.innerHTML = '';
+        } else {
+          let pagesHtml = `<button class="pagination-btn" ${this.violationsPage === 1 ? 'disabled' : ''} onclick="window.appController.goToViolationsPage(${this.violationsPage - 1})">&laquo; Prev</button>`;
+          for (let p = 1; p <= totalPages; p++) {
+            pagesHtml += `<button class="pagination-btn ${p === this.violationsPage ? 'active' : ''}" onclick="window.appController.goToViolationsPage(${p})">${p}</button>`;
+          }
+          pagesHtml += `<button class="pagination-btn ${this.violationsPage === totalPages ? 'disabled' : ''} onclick="window.appController.goToViolationsPage(${this.violationsPage + 1})">Next &raquo;</button>`;
+          paginationEl.innerHTML = pagesHtml;
+        }
+      }
+    }
+
+    goToViolationsPage(page) {
+      this.violationsPage = page;
+      this.renderAllViolationsTable();
     }
 
     // --- Master Records Table & Student Profiles ---

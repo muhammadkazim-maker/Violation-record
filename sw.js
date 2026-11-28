@@ -4,55 +4,21 @@
  * for navigation to ensure live updates sync seamlessly.
  */
 
-const CACHE_NAME = 'discipline-tracker-v1';
-const ASSETS_TO_CACHE = [
-  './index.html',
-  './discipline.html',
-  './issues.html',
-  './manifest.json',
-  './discipline-manifest.json',
-  './assets/css/discipline.css?v=v16clean',
-  './assets/js/firebase-config.js?v=v16clean',
-  './assets/js/discipline-auth.js?v=v16clean',
-  './assets/js/discipline-app.js?v=v16clean',
-  './assets/images/logo.png'
-];
-
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Pre-caching offline discipline tracker assets');
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('[SW] Clearing old cache', key);
-            return caches.delete(key);
-          }
-        })
-      );
+      return Promise.all(keys.map((key) => caches.delete(key)));
+    }).then(() => {
+      return self.registration.unregister();
     }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network-First for everything when online to ensure fresh code
-  event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return networkResponse;
-      })
-      .catch(() => caches.match(event.request).then(res => res || caches.match('./index.html')))
-  );
+  // Direct network pass-through
+  return;
 });

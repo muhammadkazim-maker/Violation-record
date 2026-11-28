@@ -4402,3 +4402,74 @@ img, svg {
     justify-content: center;
   }
 }
+
+/* --------------------------------------------------------------------------
+   18. Disciplinary Violations Log Modal & Chips
+   -------------------------------------------------------------------------- */
+.violations-hub-dialog {
+  max-width: 1040px;
+}
+
+.violations-hub-header {
+  box-shadow: 0 4px 16px rgba(185, 28, 28, 0.25);
+}
+
+.violation-filter-chip {
+  transition: all 0.15s ease !important;
+  user-select: none;
+}
+
+.violation-filter-chip:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.96);
+}
+
+.violation-filter-chip.active {
+  box-shadow: 0 0 0 2px #DC2626 !important;
+  filter: contrast(1.1);
+}
+
+[data-theme="dark"] .violation-filter-chip[data-severity="Low"] {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34D399;
+}
+
+[data-theme="dark"] .violation-filter-chip[data-severity="Medium"] {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #FBBF24;
+}
+
+[data-theme="dark"] .violation-filter-chip[data-severity="High"] {
+  background: rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.35);
+  color: #FB923C;
+}
+
+[data-theme="dark"] .violation-filter-chip[data-severity="Extreme"] {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #F87171;
+}
+
+[data-theme="dark"] .violation-filter-chip[data-severity="Ultra"] {
+  background: rgba(136, 19, 55, 0.5);
+  border-color: rgba(225, 29, 72, 0.4);
+  color: #FDA4AF;
+}
+
+@media (max-width: 640px) {
+  .violations-hub-dialog {
+    padding: 0;
+  }
+  .violations-summary-chips {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .violation-filter-chip {
+    flex-shrink: 0;
+  }
+}
