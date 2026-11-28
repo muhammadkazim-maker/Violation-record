@@ -3361,16 +3361,16 @@ img, svg {
   display: none !important;
 }
 
-/* Explicit In-DOM Form Body Watermark: Reusing Header Warning Hazard Emblem, Perfectly Centered */
+/* Explicit In-DOM Form Body Watermark: Reusing Header Violation Crest, Perfectly Centered */
 .vf-form-watermark {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;
-  height: 380px;
-  max-width: 78%;
-  max-height: 75%;
+  width: 300px;
+  height: 340px;
+  max-width: 74%;
+  max-height: 74%;
   pointer-events: none;
   z-index: 0;
   display: flex;
@@ -3385,7 +3385,7 @@ img, svg {
 }
 
 [data-theme="dark"] .vf-form-watermark {
-  opacity: 0.85 !important;
+  opacity: 0.9 !important;
 }
 
 /* Curved Rectangular Violation Form Header Bar */
@@ -3422,9 +3422,9 @@ img, svg {
 
 .vf-header-emblem svg {
   display: block;
-  width: 32px;
-  height: 38px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  width: 36px;
+  height: 41px;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.28));
 }
 
 .vf-header-divider {
@@ -3506,6 +3506,16 @@ img, svg {
   touch-action: pan-y !important;
   overscroll-behavior-y: contain !important;
   will-change: scroll-position;
+}
+
+/* Keep all form fields, labels, chips and controls strictly above centered watermark */
+.vf-modal-body > *:not(.vf-form-watermark) {
+  position: relative;
+  z-index: 2;
+}
+
+.vf-modal-body > .vf-row-2col:focus-within {
+  z-index: 20;
 }
 
 .vf-modal-body::-webkit-scrollbar {
